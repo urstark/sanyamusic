@@ -11,7 +11,7 @@ from youtubesearchpython.__future__ import VideosSearch
 import httpx
 
 from SANYAMUSIC.utils.database import is_on_off
-from SANYAMUSIC.utils.formatters import time_to_seconds
+from SANYAMUSIC.utils.formatters import time_to_seconds, seconds_to_min
 
 API_URL = "https://yt-dlp-api-service.onrender.com/stream_info"
 
@@ -88,14 +88,24 @@ class YouTubeAPI:
                 duration_sec = int(time_to_seconds(duration_min)) if duration_min else 0
             return title, duration_min, duration_sec, thumbnail, vidid
 
-        data = await self._fetch_api_data(link)
-        meta = data["metadata"]
-        
-        title = meta["title"]
-        duration_min = meta["duration_min"]
-        duration_sec = meta["duration_sec"]
-        thumbnail = meta["thumbnail"]
-        vidid = meta["vidid"]
+        try:
+            data = await self._fetch_api_data(link)
+            meta = data["metadata"]
+            title = meta["title"]
+            duration_min = meta["duration_min"]
+            duration_sec = meta["duration_sec"]
+            thumbnail = meta["thumbnail"]
+            vidid = meta["vidid"]
+        except Exception:
+            # Fallback to local yt-dlp with cookies if API fails
+            opts = {"cookiefile": "SANYAMUSIC/assets/cookies.txt", "quiet": True}
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                info = ydl.extract_info(link, download=False)
+                title = info.get("title")
+                duration_sec = info.get("duration", 0)
+                duration_min = seconds_to_min(duration_sec)
+                thumbnail = info.get("thumbnail")
+                vidid = info.get("id")
         
         return title, duration_min, duration_sec, thumbnail, vidid
 
@@ -183,17 +193,30 @@ class YouTubeAPI:
             }
             return track_details, vidid
 
-        data = await self._fetch_api_data(link)
-        meta = data["metadata"]
-
-        track_details = {
-            "title": meta["title"],
-            "link": meta["webpage_url"],
-            "vidid": meta["vidid"],
-            "duration_min": meta["duration_min"],
-            "thumb": meta["thumbnail"],
-        }
-        return track_details, meta["vidid"]
+        try:
+            data = await self._fetch_api_data(link)
+            meta = data["metadata"]
+            track_details = {
+                "title": meta["title"],
+                "link": meta["webpage_url"],
+                "vidid": meta["vidid"],
+                "duration_min": meta["duration_min"],
+                "thumb": meta["thumbnail"],
+            }
+            return track_details, meta["vidid"]
+        except Exception:
+            # Fallback to local yt-dlp with cookies if API fails
+            opts = {"cookiefile": "SANYAMUSIC/assets/cookies.txt", "quiet": True}
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                info = ydl.extract_info(link, download=False)
+                track_details = {
+                    "title": info.get("title"),
+                    "link": info.get("webpage_url"),
+                    "vidid": info.get("id"),
+                    "duration_min": seconds_to_min(info.get("duration", 0)),
+                    "thumb": info.get("thumbnail"),
+                }
+                return track_details, info.get("id")
 
     async def formats(self, link: str, videoid: Union[bool, str] = None):
         if videoid:
@@ -284,6 +307,7 @@ class YouTubeAPI:
                 "quiet": True,
                 "no_warnings": True,
                 "prefer_ffmpeg": True,
+                "cookiefile": "SANYAMUSIC/assets/cookies.txt",
                 "merge_output_format": "mp4",
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
@@ -299,6 +323,7 @@ class YouTubeAPI:
                 "quiet": True,
                 "no_warnings": True,
                 "prefer_ffmpeg": True,
+                "cookiefile": "SANYAMUSIC/assets/cookies.txt",
                 "postprocessors": [
                     {
                         "key": "FFmpegExtractAudio",
