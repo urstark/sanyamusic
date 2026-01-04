@@ -10,6 +10,7 @@ from youtubesearchpython.__future__ import VideosSearch
 
 import httpx
 
+import config
 from SANYAMUSIC.utils.database import is_on_off
 from SANYAMUSIC.utils.formatters import time_to_seconds, seconds_to_min
 
@@ -26,7 +27,7 @@ class YouTubeAPI:
 
     async def _fetch_api_data(self, link: str) -> dict:
         """Central function to call the NubCoder API and return JSON data."""
-        params = {"token": "sgYXs4aejR", "q": link}
+        params = {"token": config.YT_API_TOKEN, "q": link}
         try:
             response = await self.http_client.get(API_URL, params=params)
             response.raise_for_status() 
