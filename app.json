@@ -6,7 +6,7 @@
     "python3",
     "telegram",
     "bot",
-    "StrangerMusic",
+    "SanyaMusic",
     "MusicBot",
     "telegram-bot",
     "pyrogram"
@@ -65,6 +65,11 @@
     "SUPPORT_CHAT": {
       "description": "Your bot's support group link (must start with https://)",
       "value": "https://t.me/itfuntimeXD",
+      "required": false
+    },
+    "YT_API_TOKEN": {
+      "description": "API Token for Youtube API",
+      "value": "",
       "required": false
     }
   },
