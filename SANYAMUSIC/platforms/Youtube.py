@@ -1,6 +1,7 @@
 import asyncio
 import os
 import re
+import shutil
 from typing import Union
 
 import yt_dlp 
@@ -35,8 +36,8 @@ class YouTubeAPI:
             return data
         except httpx.HTTPError as e:
             raise Exception("Could not connect to the streaming service. It may be temporarily offline.")
-        except Exception as e:
-            raise Exception(f"The streaming service gave an invalid response: {e}")
+        except Exception:
+            raise Exception("The streaming service gave an invalid response.")
 
     async def exists(self, link: str, videoid: Union[bool, str] = None):
         if videoid:
@@ -95,16 +96,21 @@ class YouTubeAPI:
             thumbnail = data["thumbnail"]
             vidid = data["video_id"]
         except Exception:
-            # Fallback to local yt-dlp with cookies if API fails
-            opts = {"cookiefile": "SANYAMUSIC/assets/cookies.txt", "quiet": True}
-            with yt_dlp.YoutubeDL(opts) as ydl:
-                info = ydl.extract_info(link, download=False)
-                title = info.get("title")
-                duration_sec = info.get("duration", 0)
-                duration_min = seconds_to_min(duration_sec)
-                thumbnail = info.get("thumbnail")
-                vidid = info.get("id")
-        
+            # Fallback to local yt-dlp if API fails
+            opts = {"quiet": True, "no_warnings": True}
+            try:
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    info = ydl.extract_info(link, download=False)
+            except Exception:
+                shutil.copy2("SANYAMUSIC/assets/cookies.txt", "SANYAMUSIC/assets/cookies_temp.txt")
+                opts.update({"cookiefile": "SANYAMUSIC/assets/cookies_temp.txt", "cachedir": False, "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"})
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    info = ydl.extract_info(link, download=False)
+            title = info.get("title")
+            duration_sec = info.get("duration", 0)
+            duration_min = seconds_to_min(duration_sec)
+            thumbnail = info.get("thumbnail")
+            vidid = info.get("id")
         return title, duration_min, duration_sec, thumbnail, vidid
 
     # --- UPDATED: Now uses the details method ---
@@ -202,18 +208,24 @@ class YouTubeAPI:
             }
             return track_details, data["video_id"]
         except Exception:
-            # Fallback to local yt-dlp with cookies if API fails
-            opts = {"cookiefile": "SANYAMUSIC/assets/cookies.txt", "quiet": True}
-            with yt_dlp.YoutubeDL(opts) as ydl:
-                info = ydl.extract_info(link, download=False)
-                track_details = {
-                    "title": info.get("title"),
-                    "link": info.get("webpage_url"),
-                    "vidid": info.get("id"),
-                    "duration_min": seconds_to_min(info.get("duration", 0)),
-                    "thumb": info.get("thumbnail"),
-                }
-                return track_details, info.get("id")
+            # Fallback to local yt-dlp if API fails
+            opts = {"quiet": True, "no_warnings": True}
+            try:
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    info = ydl.extract_info(link, download=False)
+            except Exception:
+                shutil.copy2("SANYAMUSIC/assets/cookies.txt", "SANYAMUSIC/assets/cookies_temp.txt")
+                opts.update({"cookiefile": "SANYAMUSIC/assets/cookies_temp.txt", "cachedir": False, "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"})
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    info = ydl.extract_info(link, download=False)
+            track_details = {
+                "title": info.get("title"),
+                "link": info.get("webpage_url"),
+                "vidid": info.get("id"),
+                "duration_min": seconds_to_min(info.get("duration", 0)),
+                "thumb": info.get("thumbnail"),
+            }
+            return track_details, info.get("id")
 
     async def formats(self, link: str, videoid: Union[bool, str] = None):
         if videoid:
@@ -221,7 +233,37 @@ class YouTubeAPI:
         if "&" in link:
             link = link.split("&")[0]
             
-        formats_available = []
+        def get_fmt():
+            opts = {"quiet": True, "no_warnings": True}
+            try:
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    info = ydl.extract_info(link, download=False)
+            except Exception:
+                shutil.copy2("SANYAMUSIC/assets/cookies.txt", "SANYAMUSIC/assets/cookies_temp.txt")
+                opts.update({"cookiefile": "SANYAMUSIC/assets/cookies_temp.txt", "cachedir": False, "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"})
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    info = ydl.extract_info(link, download=False)
+            
+            formats_available = []
+            for format in info.get("formats", []):
+                try:
+                    if "dash" not in str(format.get("format")).lower():
+                        formats_available.append(
+                            {
+                                "format": format.get("format"),
+                                "filesize": format.get("filesize"),
+                                "format_id": format.get("format_id"),
+                                "ext": format.get("ext"),
+                                "format_note": format.get("format_note"),
+                                "yturl": link,
+                            }
+                        )
+                except:
+                    continue
+            return formats_available
+
+        loop = asyncio.get_running_loop()
+        formats_available = await loop.run_in_executor(None, get_fmt)
         return formats_available, link
 
     async def slider(
@@ -265,10 +307,15 @@ class YouTubeAPI:
                 "nocheckcertificate": True,
                 "quiet": True,
                 "no_warnings": True,
-                "cookiefile": "SANYAMUSIC/assets/cookies.txt",
             }
-            x = yt_dlp.YoutubeDL(ydl_optssx)
-            info = x.extract_info(link, False)
+            try:
+                x = yt_dlp.YoutubeDL(ydl_optssx)
+                info = x.extract_info(link, False)
+            except Exception:
+                shutil.copy2("SANYAMUSIC/assets/cookies.txt", "SANYAMUSIC/assets/cookies_temp.txt")
+                ydl_optssx.update({"cookiefile": "SANYAMUSIC/assets/cookies_temp.txt", "cachedir": False, "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"})
+                x = yt_dlp.YoutubeDL(ydl_optssx)
+                info = x.extract_info(link, False)
             xyz = os.path.join("downloads", f"{info['id']}.{info['ext']}")
             if os.path.exists(xyz):
                 return xyz
@@ -283,10 +330,15 @@ class YouTubeAPI:
                 "nocheckcertificate": True,
                 "quiet": True,
                 "no_warnings": True,
-                "cookiefile": "SANYAMUSIC/assets/cookies.txt",
             }
-            x = yt_dlp.YoutubeDL(ydl_optssx)
-            info = x.extract_info(link, False)
+            try:
+                x = yt_dlp.YoutubeDL(ydl_optssx)
+                info = x.extract_info(link, False)
+            except Exception:
+                shutil.copy2("SANYAMUSIC/assets/cookies.txt", "SANYAMUSIC/assets/cookies_temp.txt")
+                ydl_optssx.update({"cookiefile": "SANYAMUSIC/assets/cookies_temp.txt", "cachedir": False, "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"})
+                x = yt_dlp.YoutubeDL(ydl_optssx)
+                info = x.extract_info(link, False)
             xyz = os.path.join("downloads", f"{info['id']}.{info['ext']}")
             if os.path.exists(xyz):
                 return xyz
@@ -304,11 +356,16 @@ class YouTubeAPI:
                 "quiet": True,
                 "no_warnings": True,
                 "prefer_ffmpeg": True,
-                "cookiefile": "SANYAMUSIC/assets/cookies.txt",
                 "merge_output_format": "mp4",
             }
-            x = yt_dlp.YoutubeDL(ydl_optssx)
-            x.download([link])
+            try:
+                x = yt_dlp.YoutubeDL(ydl_optssx)
+                x.download([link])
+            except Exception:
+                shutil.copy2("SANYAMUSIC/assets/cookies.txt", "SANYAMUSIC/assets/cookies_temp.txt")
+                ydl_optssx.update({"cookiefile": "SANYAMUSIC/assets/cookies_temp.txt", "cachedir": False, "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"})
+                x = yt_dlp.YoutubeDL(ydl_optssx)
+                x.download([link])
 
         def song_audio_dl():
             fpath = f"downloads/{title}.%(ext)s"
@@ -320,7 +377,6 @@ class YouTubeAPI:
                 "quiet": True,
                 "no_warnings": True,
                 "prefer_ffmpeg": True,
-                "cookiefile": "SANYAMUSIC/assets/cookies.txt",
                 "postprocessors": [
                     {
                         "key": "FFmpegExtractAudio",
@@ -329,10 +385,15 @@ class YouTubeAPI:
                     }
                 ],
             }
-            x = yt_dlp.YoutubeDL(ydl_optssx)
-            x.download([link])
+            try:
+                x = yt_dlp.YoutubeDL(ydl_optssx)
+                x.download([link])
+            except Exception:
+                shutil.copy2("SANYAMUSIC/assets/cookies.txt", "SANYAMUSIC/assets/cookies_temp.txt")
+                ydl_optssx.update({"cookiefile": "SANYAMUSIC/assets/cookies_temp.txt", "cachedir": False, "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"})
+                x = yt_dlp.YoutubeDL(ydl_optssx)
+                x.download([link])
 
-        
         if songvideo:
             await loop.run_in_executor(None, song_video_dl)
             fpath = f"downloads/{title}.mp4"
