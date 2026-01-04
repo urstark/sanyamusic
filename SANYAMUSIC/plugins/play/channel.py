@@ -18,7 +18,7 @@ async def playmode_(client, message: Message, _):
         await set_cmode(message.chat.id, None)
         return await message.reply_text(_["cplay_7"])
     elif str(query) == "linked":
-        chat = await app.get_chat(message.chat.id)
+        chat = await client.get_chat(message.chat.id)
         if chat.linked_chat:
             chat_id = chat.linked_chat.id
             await set_cmode(message.chat.id, chat_id)
@@ -29,13 +29,13 @@ async def playmode_(client, message: Message, _):
             return await message.reply_text(_["cplay_2"])
     else:
         try:
-            chat = await app.get_chat(query)
+            chat = await client.get_chat(query)
         except:
             return await message.reply_text(_["cplay_4"])
         if chat.type != ChatType.CHANNEL:
             return await message.reply_text(_["cplay_5"])
         try:
-            async for user in app.get_chat_members(
+            async for user in client.get_chat_members(
                 chat.id, filter=ChatMembersFilter.ADMINISTRATORS
             ):
                 if user.status == ChatMemberStatus.OWNER:

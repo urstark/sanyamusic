@@ -1,6 +1,6 @@
 
 from SANYAMUSIC import app
-from pyrogram.errors import RPCError
+from pyrogram.errors import RPCError, ButtonUserPrivacyRestricted
 from pyrogram.types import ChatMemberUpdated, InlineKeyboardMarkup, InlineKeyboardButton
 from typing import Union, Optional
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageChops
@@ -81,13 +81,13 @@ def welcomepic(pic, user, chatname, id, uname, brightness_factor=1.3):
 
 
 @app.on_message(filters.command("welcome") & ~filters.private)
-async def auto_state(_, message):
+async def auto_state(client, message):
     usage = "**ᴜsᴀɢᴇ:**\n**⦿ /welcome [on|off]**"
     if len(message.command) == 1:
         return await message.reply_text(usage)
 
     chat_id = message.chat.id
-    user = await app.get_chat_member(chat_id, message.from_user.id)
+    user = await client.get_chat_member(chat_id, message.from_user.id)
     if user.status in (enums.ChatMemberStatus.ADMINISTRATOR, enums.ChatMemberStatus.OWNER):
         A = await wlcm.find_one(chat_id)
         state = message.text.split(None, 1)[1].strip().lower()
@@ -110,9 +110,9 @@ async def auto_state(_, message):
 
 
 @app.on_chat_member_updated(filters.group, group=-3)
-async def greet_new_member(_, member: ChatMemberUpdated):
+async def greet_new_member(client, member: ChatMemberUpdated):
     chat_id = member.chat.id
-    count = await app.get_chat_members_count(chat_id)
+    count = await client.get_chat_members_count(chat_id)
     A = await wlcm.find_one(chat_id)
     if A:
         return
@@ -120,7 +120,7 @@ async def greet_new_member(_, member: ChatMemberUpdated):
     if member.new_chat_member and not member.old_chat_member and member.new_chat_member.status != "kicked":
         user = member.new_chat_member.user
         try:
-            pic = await app.download_media(user.photo.big_file_id, file_name=f"pp{user.id}.png")
+            pic = await client.download_media(user.photo.big_file_id, file_name=f"pp{user.id}.png")
         except AttributeError:
             pic = "SANYAMUSIC/assets/upic.png"
 
@@ -135,9 +135,10 @@ async def greet_new_member(_, member: ChatMemberUpdated):
             button_text = "๏ ᴠɪᴇᴡ ɴᴇᴡ ᴍᴇᴍʙᴇʀ ๏"
             add_button_text = "✙ ᴋɪᴅɴᴀᴘ ᴍᴇ ✙"
             deep_link = f"tg://openmessage?user_id={user.id}"
-            add_link = f"https://t.me/{app.username}?startgroup=true"
+            add_link = f"https://t.me/{client.me.username}?startgroup=true"
 
-            msg = await app.send_photo(
+            try:
+                msg = await client.send_photo(
                 chat_id,
                 photo=welcomeimg,
                 caption=f"""
@@ -150,12 +151,33 @@ async def greet_new_member(_, member: ChatMemberUpdated):
 **☉ ᴛᴏᴛᴀʟ ᴍᴇᴍʙᴇʀs ⧽** {count}
 
 **▬▭▬▭▬▭▬▭▬▭▬▭▬▭▬**
+**❍ ᴄʀᴇᴀᴛᴇ ʏᴏᴜʀ ᴏᴡɴ ᴄʟᴏɴᴇ:** @{app.me.username}
 """,
                 reply_markup=InlineKeyboardMarkup([
                     [InlineKeyboardButton(button_text, url=deep_link)],
                     [InlineKeyboardButton(text=add_button_text, url=add_link)],
                 ])
             )
+            except ButtonUserPrivacyRestricted:
+                msg = await client.send_photo(
+                    chat_id,
+                    photo=welcomeimg,
+                    caption=f"""
+ㅤㅤ◦•●◉✿ ᴡᴇʟᴄᴏᴍᴇ ✿◉●•◦
+**▬▭▬▭▬▭▬▭▬▭▬▭▬▭▬**
+
+**☉ ɴᴀᴍᴇ ⧽** {user.mention}
+**☉ ɪᴅ ⧽** `{user.id}`
+**☉ ᴜ_ɴᴀᴍᴇ ⧽** @{user.username if user.username else 'None'}
+**☉ ᴛᴏᴛᴀʟ ᴍᴇᴍʙᴇʀs ⧽** {count}
+
+**▬▭▬▭▬▭▬▭▬▭▬▭▬▭▬**
+**❍ ᴄʀᴇᴀᴛᴇ ʏᴏᴜʀ ᴏᴡɴ ᴄʟᴏɴᴇ:** @{app.me.username}
+""",
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton(text=add_button_text, url=add_link)],
+                    ])
+                )
 
             temp.MELCOW[f"welcome-{chat_id}"] = msg
 

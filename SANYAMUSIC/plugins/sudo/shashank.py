@@ -50,7 +50,7 @@ channel = ["channel"]
 
 
 @app.on_message(filters.command(["tark","anya","aby"], prefixes=["s", "B", "S", "b"]) & admin_filter)
-async def restriction_app(app :app, message):
+async def restriction_app(client, message):
     reply = message.reply_to_message
     chat_id = message.chat.id
     if len(message.text) < 2:
@@ -66,13 +66,13 @@ async def restriction_app(app :app, message):
                 if user_id in SUDOERS:
                     await message.reply(random.choice(strict_txt))          
                 else:
-                    await app.ban_chat_member(chat_id, user_id)
+                    await client.ban_chat_member(chat_id, user_id)
                     await message.reply("Dᴏɴᴇ!, ɪ ʙᴀɴɴᴇᴅ ᴛʜᴇ ᴜsᴇʀ")
                     
         for unbanned in data:
             print(f"present {unbanned}")
             if unbanned in unban:
-                await app.unban_chat_member(chat_id, user_id)
+                await client.unban_chat_member(chat_id, user_id)
                 await message.reply(f"Sᴜʀᴇ, ᴀs ʏᴏᴜʀ ᴡɪsʜ. ᴜsᴇʀ ᴜɴʙᴀɴɴᴇᴅ!") 
                 
         for kicked in data:
@@ -82,8 +82,8 @@ async def restriction_app(app :app, message):
                     await message.reply(random.choice(strict_txt))
                 
                 else:
-                    await app.ban_chat_member(chat_id, user_id)
-                    await app.unban_chat_member(chat_id, user_id)
+                    await client.ban_chat_member(chat_id, user_id)
+                    await client.unban_chat_member(chat_id, user_id)
                     await message.reply("Gᴏᴛ ɪᴛ, ᴜsᴇʀ ᴋɪᴄᴋᴇᴅ!") 
                     
         for muted in data:
@@ -108,7 +108,7 @@ async def restriction_app(app :app, message):
         for promoted in data:
             print(f"present {promoted}")            
             if promoted in promote:
-                await app.promote_chat_member(chat_id, user_id, privileges=ChatPrivileges(
+                await client.promote_chat_member(chat_id, user_id, privileges=ChatPrivileges(
                     can_change_info=False,
                     can_invite_users=True,
                     can_delete_messages=True,
@@ -124,7 +124,7 @@ async def restriction_app(app :app, message):
         for demoted in data:
             print(f"present {demoted}")            
             if demoted in demote:
-                await app.promote_chat_member(chat_id, user_id, privileges=ChatPrivileges(
+                await client.promote_chat_member(chat_id, user_id, privileges=ChatPrivileges(
                     can_change_info=False,
                     can_invite_users=False,
                     can_delete_messages=False,
@@ -142,7 +142,7 @@ async def restriction_app(app :app, message):
     for fullpromoted in data:
         print(f"present {fullpromoted}")            
         if fullpromoted in fullpromote:
-            await app.promote_chat_member(chat_id, user_id, privileges=ChatPrivileges(
+            await client.promote_chat_member(chat_id, user_id, privileges=ChatPrivileges(
                 can_change_info=True,
                 can_invite_users=True,
                 can_delete_messages=True,

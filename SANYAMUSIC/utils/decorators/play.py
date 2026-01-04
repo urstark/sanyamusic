@@ -16,6 +16,7 @@ from pyrogram.enums import ChatMemberStatus
 from pyrogram.errors import (
     ChatAdminRequired,
     InviteRequestSent,
+    PeerIdInvalid,
     UserAlreadyParticipant,
     UserNotParticipant,
 )
@@ -59,7 +60,7 @@ def PlayWrapper(command):
         if await is_maintenance() is False:
             if message.from_user.id not in SUDOERS:
                 return await message.reply_text(
-                    text=f"{app.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ <a href={SUPPORT_CHAT}>sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ</a> ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
+                    text=f"{client.me.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ <a href={SUPPORT_CHAT}>sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ</a> ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
                     disable_web_page_preview=True,
                 )
 
@@ -94,7 +95,7 @@ def PlayWrapper(command):
             if chat_id is None:
                 return await message.reply_text(_["setting_7"])
             try:
-                chat = await app.get_chat(chat_id)
+                chat = await client.get_chat(chat_id)
             except:
                 return await message.reply_text(_["cplay_4"])
             channel = chat.title
@@ -129,7 +130,7 @@ def PlayWrapper(command):
             userbot = await get_assistant(chat_id)
             try:
                 try:
-                    get = await app.get_chat_member(chat_id, userbot.id)
+                    get = await client.get_chat_member(chat_id, userbot.id)
                 except ChatAdminRequired:
                     return await message.reply_text(_["call_1"])
                 if (
@@ -138,10 +139,10 @@ def PlayWrapper(command):
                 ):
                     return await message.reply_text(
                         _["call_2"].format(
-                            app.mention, userbot.id, userbot.name, userbot.username
+                            client.me.mention, userbot.id, userbot.name, userbot.username
                         ), reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text= "๏ 𝗨ɴʙᴀɴ 𝗔ssɪsᴛᴀɴᴛ ๏", callback_data=f"unban_assistant")]])
                     )
-            except UserNotParticipant:
+            except (UserNotParticipant, PeerIdInvalid):
                 if chat_id in links:
                     invitelink = links[chat_id]
                 else:
@@ -153,36 +154,36 @@ def PlayWrapper(command):
                             pass
                     else:
                         try:
-                            invitelink = await app.export_chat_invite_link(chat_id)
+                            invitelink = await client.export_chat_invite_link(chat_id)
                         except ChatAdminRequired:
                             return await message.reply_text(_["call_1"])
                         except Exception as e:
                             return await message.reply_text(
-                                _["call_3"].format(app.mention, type(e).__name__)
+                                _["call_3"].format(client.me.mention, type(e).__name__)
                             )
 
                 if invitelink.startswith("https://t.me/+"):
                     invitelink = invitelink.replace(
                         "https://t.me/+", "https://t.me/joinchat/"
                     )
-                myu = await message.reply_text(_["call_4"].format(app.mention))
+                myu = await message.reply_text(_["call_4"].format(client.me.mention))
                 try:
                     await asyncio.sleep(1)
                     await userbot.join_chat(invitelink)
                 except InviteRequestSent:
                     try:
-                        await app.approve_chat_join_request(chat_id, userbot.id)
+                        await client.approve_chat_join_request(chat_id, userbot.id)
                     except Exception as e:
                         return await message.reply_text(
-                            _["call_3"].format(app.mention, type(e).__name__)
+                            _["call_3"].format(client.me.mention, type(e).__name__)
                         )
                     await asyncio.sleep(3)
-                    await myu.edit(_["call_5"].format(app.mention))
+                    await myu.edit(_["call_5"].format(client.me.mention))
                 except UserAlreadyParticipant:
                     pass
                 except Exception as e:
                     return await message.reply_text(
-                        _["call_3"].format(app.mention, type(e).__name__)
+                        _["call_3"].format(client.me.mention, type(e).__name__)
                     )
 
                 links[chat_id] = invitelink

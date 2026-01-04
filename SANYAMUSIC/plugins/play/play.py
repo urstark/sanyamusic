@@ -67,7 +67,7 @@ async def play_commnd(
         duration_min = seconds_to_min(audio_telegram.duration)
         if (audio_telegram.duration) > config.DURATION_LIMIT:
             return await mystic.edit_text(
-                _["play_6"].format(config.DURATION_LIMIT_MIN, app.mention)
+                _["play_6"].format(config.DURATION_LIMIT_MIN, client.me.mention)
             )
         file_path = await Telegram.get_filepath(audio=audio_telegram)
         if await Telegram.download(_, message, mystic, file_path):
@@ -83,6 +83,7 @@ async def play_commnd(
 
             try:
                 await stream(
+                    client,
                     _,
                     mystic,
                     user_id,
@@ -126,6 +127,7 @@ async def play_commnd(
             }
             try:
                 await stream(
+                    client,
                     _,
                     mystic,
                     user_id,
@@ -206,7 +208,7 @@ async def play_commnd(
                 streamtype = "playlist"
                 plist_type = "spplay"
                 img = config.SPOTIFY_PLAYLIST_IMG_URL
-                cap = _["play_11"].format(app.mention, message.from_user.mention)
+                cap = _["play_11"].format(client.me.mention, message.from_user.mention)
             elif "album" in url:
                 try:
                     details, plist_id = await Spotify.album(url)
@@ -215,7 +217,7 @@ async def play_commnd(
                 streamtype = "playlist"
                 plist_type = "spalbum"
                 img = config.SPOTIFY_ALBUM_IMG_URL
-                cap = _["play_11"].format(app.mention, message.from_user.mention)
+                cap = _["play_11"].format(client.me.mention, message.from_user.mention)
             elif "artist" in url:
                 try:
                     details, plist_id = await Spotify.artist(url)
@@ -244,7 +246,7 @@ async def play_commnd(
                     return await mystic.edit_text(_["play_3"])
                 streamtype = "playlist"
                 plist_type = "apple"
-                cap = _["play_12"].format(app.mention, message.from_user.mention)
+                cap = _["play_12"].format(client.me.mention, message.from_user.mention)
                 img = url
             else:
                 return await mystic.edit_text(_["play_3"])
@@ -266,11 +268,12 @@ async def play_commnd(
                 return await mystic.edit_text(
                     _["play_6"].format(
                         config.DURATION_LIMIT_MIN,
-                        app.mention,
+                        client.me.mention,
                     )
                 )
             try:
                 await stream(
+                    client,
                     _,
                     mystic,
                     user_id,
@@ -300,6 +303,7 @@ async def play_commnd(
             await mystic.edit_text(_["str_2"])
             try:
                 await stream(
+                    client,
                     _,
                     mystic,
                     message.from_user.id,
@@ -315,7 +319,11 @@ async def play_commnd(
                 ex_type = type(e).__name__
                 err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
                 return await mystic.edit_text(err)
-            return await play_logs(message, streamtype="M3u8 or Index Link")
+            try:
+                await play_logs(message, streamtype="M3u8 or Index Link")
+            except:
+                pass
+            return
     else:
         if len(message.command) < 2:
             buttons = botplaylist_markup(_)
@@ -338,7 +346,7 @@ async def play_commnd(
                 duration_sec = time_to_seconds(details["duration_min"])
                 if duration_sec > config.DURATION_LIMIT:
                     return await mystic.edit_text(
-                        _["play_6"].format(config.DURATION_LIMIT_MIN, app.mention)
+                        _["play_6"].format(config.DURATION_LIMIT_MIN, client.mention)
                     )
             else:
                 buttons = livestream_markup(
@@ -355,6 +363,7 @@ async def play_commnd(
                 )
         try:
             await stream(
+                client,
                 _,
                 mystic,
                 user_id,
@@ -372,7 +381,11 @@ async def play_commnd(
             err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
             return await mystic.edit_text(err)
         await mystic.delete()
-        return await play_logs(message, streamtype=streamtype)
+        try:
+            await play_logs(message, streamtype=streamtype)
+        except:
+            pass
+        return
     else:
         if plist_type:
             ran_hash = "".join(
@@ -394,7 +407,11 @@ async def play_commnd(
                 caption=cap,
                 reply_markup=InlineKeyboardMarkup(buttons),
             )
-            return await play_logs(message, streamtype=f"Playlist : {plist_type}")
+            try:
+                await play_logs(message, streamtype=f"Playlist : {plist_type}")
+            except:
+                pass
+            return
         else:
             if slider:
                 buttons = slider_markup(
@@ -415,7 +432,11 @@ async def play_commnd(
                     ),
                     reply_markup=InlineKeyboardMarkup(buttons),
                 )
-                return await play_logs(message, streamtype=f"Searched on Youtube")
+                try:
+                    await play_logs(message, streamtype=f"Searched on Youtube")
+                except:
+                    pass
+                return
             else:
                 buttons = track_markup(
                     _,
@@ -431,7 +452,11 @@ async def play_commnd(
                     caption=cap,
                     reply_markup=InlineKeyboardMarkup(buttons),
                 )
-                return await play_logs(message, streamtype=f"URL Searched Inline")
+                try:
+                    await play_logs(message, streamtype=f"URL Searched Inline")
+                except:
+                    pass
+                return
 
 
 @app.on_callback_query(filters.regex("MusicStream") & ~BANNED_USERS)
@@ -466,7 +491,7 @@ async def play_music(client, CallbackQuery, _):
         duration_sec = time_to_seconds(details["duration_min"])
         if duration_sec > config.DURATION_LIMIT:
             return await mystic.edit_text(
-                _["play_6"].format(config.DURATION_LIMIT_MIN, app.mention)
+                _["play_6"].format(config.DURATION_LIMIT_MIN, client.me.mention)
             )
     else:
         buttons = livestream_markup(
@@ -485,6 +510,7 @@ async def play_music(client, CallbackQuery, _):
     ffplay = True if fplay == "f" else None
     try:
         await stream(
+            client,
             _,
             mystic,
             CallbackQuery.from_user.id,
@@ -582,6 +608,7 @@ async def play_playlists_command(client, CallbackQuery, _):
             return await mystic.edit_text(_["play_3"])
     try:
         await stream(
+            client,
             _,
             mystic,
             user_id,

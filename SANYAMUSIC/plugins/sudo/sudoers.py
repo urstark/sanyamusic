@@ -62,7 +62,10 @@ async def check_sudo_list(client, callback_query: CallbackQuery):
     if callback_query.from_user.id not in SUDOERS:
         return await callback_query.answer("Sᴏʀʀʏ ʙᴜᴛ ᴜ ᴄᴀɴ'ᴛ sᴇᴇ ᴄᴏᴢ ᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ʀʏᴛs !", show_alert=True)
     else:
-        user = await app.get_users(OWNER_ID)
+        try:
+            user = await client.get_users(OWNER_ID)
+        except:
+            user = await app.get_users(OWNER_ID)
 
         user_mention = (user.first_name if not user.mention else user.mention)
         caption = f"**˹ʟɪsᴛ ᴏғ ʙᴏᴛ ᴍᴏᴅᴇʀᴀᴛᴏʀs˼**\n\n**🌹Oᴡɴᴇʀ** ➥ {user_mention}\n\n"
@@ -73,7 +76,10 @@ async def check_sudo_list(client, callback_query: CallbackQuery):
         for user_id in SUDOERS:
             if user_id != OWNER_ID:
                 try:
-                    user = await app.get_users(user_id)
+                    try:
+                        user = await client.get_users(user_id)
+                    except:
+                        user = await app.get_users(user_id)
                     user_mention = user.mention if user else f"**🎁 Sᴜᴅᴏ {count} ɪᴅ:** {user_id}"
                     caption += f"**🎁 Sᴜᴅᴏ** {count} **»** {user_mention}\n"
                     button_text = f"๏ ᴠɪᴇᴡ sᴜᴅᴏ {count} ๏ "

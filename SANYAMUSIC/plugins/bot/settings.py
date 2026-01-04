@@ -66,7 +66,7 @@ async def settings_cb(client, CallbackQuery, _):
         reply_markup=InlineKeyboardMarkup(buttons),
     )
     
-@app.on_callback_query(filters.regex("settingsback_helper") & ~BANNED_USERS)
+@app.on_callback_query(filters.regex("settings_back_helper") & ~BANNED_USERS)
 @languageCB
 async def settings_back_markup(client, CallbackQuery: CallbackQuery, _):
     try:

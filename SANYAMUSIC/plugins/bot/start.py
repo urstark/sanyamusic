@@ -81,21 +81,6 @@ async def start_pm(client, message: Message, _):
     # 2. Set Bot Status to Typing
     await client.send_chat_action(message.chat.id, ChatAction.TYPING)
 
-    # 3. Layer 1: The Ding Dong Animation
-    accha = await message.reply_text("⚡")
-    layer_1 = [
-        "✨", "🤍", "💫", "🐼", "🐾", "🕊", "🌸", "👀"
-    ]
-    for step in layer_1:
-        try:
-            await accha.edit(f"**__{step}__**")
-            await asyncio.sleep(0.06)
-        except:
-            continue
-    
-    # DELETE Layer 1
-    await accha.delete()
-
     # 4. Layer 2: Separate "Starting" Message
     starting_msg = await message.reply_text("**__𝐻𝑖𝑒𝑒 𝐶𝑢𝑡𝑖𝑒𝑒𝑠 ‹𝟹__**")
     await asyncio.sleep(0.6) 

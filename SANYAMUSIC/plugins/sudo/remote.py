@@ -43,7 +43,7 @@ async def rpromote(client, message: Message):
     AMBOT = await message.reply_text(f"#ʀᴇᴍᴏᴛᴇ_ᴘʀᴏᴍᴏᴛᴇ\nᴘʀᴏᴍᴏᴛᴇ ᴜꜱᴇʀ : {mention}\nᴛᴀʀɢᴇᴛ ɢʀᴏᴜᴘ ɪᴅ : <code>{group_id}</code>\n\nᴘᴏᴡᴇʀ ʙʏ : @SapnaMusicRobot")
     
     try:
-        await app.promote_chat_member(
+        await client.promote_chat_member(
             group_id,
             user_id,
             privileges=ChatPrivileges(
@@ -57,7 +57,7 @@ async def rpromote(client, message: Message):
                 can_manage_video_chats=True,
             )
         )
-        await app.set_administrator_title(group_id, user_id, "AMBOT OP")
+        await client.set_administrator_title(group_id, user_id, "AMBOT OP")
     except RPCError as e:
         await AMBOT.edit(f"An error occurred: {str(e)}")
         return
@@ -84,7 +84,7 @@ async def rpromote(client, message: Message):
     AMBOT = await message.reply_text(f"#ʀᴇᴍᴏᴛᴇ_ᴘʀᴏᴍᴏᴛᴇ\nᴘʀᴏᴍᴏᴛᴇ ᴜꜱᴇʀ : {mention}\nᴛᴀʀɢᴇᴛ ɢʀᴏᴜᴘ ɪᴅ : <code>{group_id}</code>\n\nᴘᴏᴡᴇʀ ʙʏ : @SapnaMusicRobot")
     
     try:
-        await app.promote_chat_member(
+        await client.promote_chat_member(
             group_id,
             user_id,
             privileges=ChatPrivileges(
@@ -122,7 +122,7 @@ async def runban(client, message: Message, _):
         mention = f"<a href=tg://user?id={user_id}>{first_name}</a>"
     try:
         AMBOT = await message.reply_text(f"#ʀᴇᴍᴏᴛᴇ_ᴜɴʙᴀɴ\nᴜɴʙᴀɴɪɴɢ ᴜꜱᴇʀ : {mention}\nᴛᴀʀɢᴇᴛ ɢʀᴏᴜᴘ ɪᴅ : <code>{group_id}</code>\n\nᴘᴏᴡᴇʀ ʙʏ : @SanyaxMusicBot")
-        await app.unban_chat_member(group_id, user_id)
+        await client.unban_chat_member(group_id, user_id)
     except FloodWait as fw:
         await asyncio.sleep(int(fw.x))
         await AMBOT.edit(f"#ʀᴇᴍᴏᴛᴇ_ᴜɴʙᴀɴ\nᴜɴʙᴀɴɴᴅᴇᴅ ᴜꜱᴇʀ : {mention}\nᴛᴀʀɢᴇᴛ ɢʀᴏᴜᴘ ɪᴅ : <code>{group_id}</code>\n\nꜱᴜᴄᴄᴇꜱꜱꜰᴜʟ ᴜɴʙᴀɴɴᴅᴇᴅ\n\nᴘᴏᴡᴇʀ ʙʏ : @SanyaxMusicBot")
@@ -146,7 +146,7 @@ async def rban(client, message: Message, _):
         mention = f"<a href=tg://user?id={user_id}>{first_name}</a>"
     try:
         AMBOT = await message.reply_text(f"#ʀᴇᴍᴏᴛᴇ_ʙᴀɴ\nʙᴀɴɪɴɢ ᴜꜱᴇʀ : {mention}\nᴛᴀʀɢᴇᴛ ɢʀᴏᴜᴘ ɪᴅ : <code>{group_id}</code>\n\nᴘᴏᴡᴇʀ ʙʏ : @SanyaxMusicBot")
-        await app.ban_chat_member(group_id, user_id)
+        await client.ban_chat_member(group_id, user_id)
     except FloodWait as fw:
         await asyncio.sleep(int(fw.x))
         await AMBOT.edit(f"#ʀᴇᴍᴏᴛᴇ_ʙᴀɴ\nʙᴀɴɴᴅᴇᴅ ᴜꜱᴇʀ : {mention}\nᴛᴀʀɢᴇᴛ ɢʀᴏᴜᴘ ɪᴅ : <code>{group_id}</code>\n\nꜱᴜᴄᴄᴇꜱꜱꜰᴜʟ ʙᴀɴɴᴅᴇᴅ\n\nᴘᴏᴡᴇʀ ʙʏ : @SanyaxMusicBot")

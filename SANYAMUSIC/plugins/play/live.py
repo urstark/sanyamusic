@@ -41,6 +41,7 @@ async def play_live_stream(client, CallbackQuery, _):
     if not details["duration_min"]:
         try:
             await stream(
+                client,
                 _,
                 mystic,
                 user_id,
