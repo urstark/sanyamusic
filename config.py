@@ -16,6 +16,7 @@ OWNER_USERNAME = getenv("OWNER_USERNAME")
 BOT_USERNAME = getenv("BOT_USERNAME")
 BOT_NAME = getenv("BOT_NAME", "Sanya")
 ASSUSERNAME = getenv("ASSUSERNAME", "SANYAassistant")
+MUST_JOIN = getenv("MUST_JOIN", "urstarkz")
 
 # MongoDB
 MONGO_DB_URI = getenv("MONGO_DB_URI")
@@ -109,6 +110,7 @@ if SUPPORT_CHANNEL and not re.match(r"(?:http|https)://", SUPPORT_CHANNEL):
 
 if SUPPORT_CHAT and not re.match(r"(?:http|https)://", SUPPORT_CHAT):
     raise SystemExit("[ERROR] - Your SUPPORT_CHAT url is invalid. It must start with https://")
+
 
 
 
