@@ -6,7 +6,7 @@
     "python3",
     "telegram",
     "bot",
-    "SanyaMusic",
+    "StrangerMusic",
     "MusicBot",
     "telegram-bot",
     "pyrogram"
@@ -64,12 +64,17 @@
     },
     "SUPPORT_CHAT": {
       "description": "Your bot's support group link (must start with https://)",
-      "value": "https://t.me/itfuntimeXD",
+      "value": "https://t.me/SanyaXSupport",
       "required": false
     },
     "YT_API_TOKEN": {
       "description": "API Token for Youtube API",
       "value": "",
+      "required": true
+    },
+    "MUST_JOIN": {
+      "description": "Username of channel to force join (leave empty to disable)",
+      "value": "urstarkz",
       "required": false
     }
   },
