@@ -68,6 +68,7 @@ downloads/
 raw_files/
 cache/
 log.txt
+commands.txt
 clones.txt
 
 # Django stuff:
