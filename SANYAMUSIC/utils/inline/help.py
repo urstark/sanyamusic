@@ -20,7 +20,7 @@ def help_pannel(_, page_num: int = 1):
     all_buttons = [
         # Core Music
         InlineKeyboardButton(text=_["H_B_11"], callback_data="help_callback hb11"), # Play
-        InlineKeyboardButton(text=_["H_B_1"], callback_data="help_callback hb1"),   # Admin
+        InlineKeyboardButton(text="ᴀᴅᴍɪɴ", callback_data="help_callback hb1"),   # Admin
         InlineKeyboardButton(text=_["H_B_6"], callback_data="help_callback hb6"),   # C-Play
         InlineKeyboardButton(text=_["H_B_8"], callback_data="help_callback hb8"),   # Loop
         InlineKeyboardButton(text=_["H_B_12"], callback_data="help_callback hb12"), # Shuffle
@@ -42,10 +42,10 @@ def help_pannel(_, page_num: int = 1):
         InlineKeyboardButton(text=_["H_B_35"], callback_data="help_callback hb35"), # Clone
         # Fun & Extras
         InlineKeyboardButton(text=_["H_B_16"], callback_data="help_callback hb16"), # ChatGPT
-        InlineKeyboardButton(text=_["H_B_17"], callback_data="help_callback hb17"), # Group
+        InlineKeyboardButton(text="ɢʀᴏᴜᴘ sᴇᴛᴛɪɴɢs", callback_data="help_callback hb17"), # Group
         InlineKeyboardButton(text=_["H_B_18"], callback_data="help_callback hb18"), # Stickers
-        InlineKeyboardButton(text=_["H_B_19"], callback_data="help_callback hb19"), # Tag
-        InlineKeyboardButton(text=_["H_B_21"], callback_data="help_callback hb21"), # Extra
+        InlineKeyboardButton(text="ɢᴇɴᴇʀᴀʟ ᴛᴀɢ", callback_data="help_callback hb19"), # Tag
+        InlineKeyboardButton(text="ᴇxᴛʀᴀ ᴛᴏᴏʟs", callback_data="help_callback hb21"), # Extra
         InlineKeyboardButton(text=_["H_B_22"], callback_data="help_callback hb22"), # Image
         InlineKeyboardButton(text=_["H_B_23"], callback_data="help_callback hb23"), # Action
         InlineKeyboardButton(text=_["H_B_25"], callback_data="help_callback hb25"), # Font
@@ -57,7 +57,26 @@ def help_pannel(_, page_num: int = 1):
         InlineKeyboardButton(text=_["H_B_31"], callback_data="help_callback hb31"), # TTS
         InlineKeyboardButton(text=_["H_B_32"], callback_data="help_callback hb32"), # Fun
         InlineKeyboardButton(text=_["H_B_33"], callback_data="help_callback hb33"), # Quotly
+        InlineKeyboardButton(text="ᴀᴘᴘʀᴏᴠᴇ", callback_data="help_callback hb36"),
+        InlineKeyboardButton(text="ғɪʟᴛᴇʀs", callback_data="help_callback hb37"),
+        InlineKeyboardButton(text="ᴀssɪsᴛᴀɴᴛ", callback_data="help_callback hb38"),
+        InlineKeyboardButton(text="ɴᴏᴛᴇs", callback_data="help_callback hb39"),
+        InlineKeyboardButton(text="ᴄᴏᴜᴘʟᴇs", callback_data="help_callback hb40"),
+        InlineKeyboardButton(text="ɴsғᴡ", callback_data="help_callback hb41"),
+        InlineKeyboardButton(text="ᴠᴏɪᴄᴇ ᴄʜᴀᴛ", callback_data="help_callback hb42"),
+        InlineKeyboardButton(text="ᴍᴇᴅɪᴀ/ᴡᴇʙ", callback_data="help_callback hb43"),
+        InlineKeyboardButton(text="sᴇᴛᴛɪɴɢs", callback_data="help_callback hb44"),
+        InlineKeyboardButton(text="ᴅᴇᴠ ᴛᴏᴏʟs", callback_data="help_callback hb45"),
+        InlineKeyboardButton(text="ɢʀᴏᴜᴘ ɪɴғᴏ", callback_data="help_callback hb46"),
+        InlineKeyboardButton(text="ᴄʜᴀɴɴᴇʟ ᴀᴅᴍɪɴ", callback_data="help_callback hb47"),
+        InlineKeyboardButton(text="ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ", callback_data="help_callback hb48"),
+        InlineKeyboardButton(text="ɢʀᴏᴜᴘ ᴍᴏᴅ", callback_data="help_callback hb49"),
+        InlineKeyboardButton(text="sᴘᴇᴄɪᴀʟ ᴛᴀɢ", callback_data="help_callback hb50"),
+        InlineKeyboardButton(text="ᴍɪsᴄ ᴇxᴛʀᴀ", callback_data="help_callback hb51"),
     ]
+
+    for button in all_buttons:
+        button.callback_data = f"{button.callback_data} {page_num}"
 
     # 15 buttons per page, 5 rows of 3 buttons
     BUTTONS_PER_ROW = 3
@@ -98,17 +117,16 @@ def help_pannel(_, page_num: int = 1):
     )
 
     page_buttons.append(nav_row)
-    page_buttons.append([InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")])
     return InlineKeyboardMarkup(page_buttons)
 
 
-def help_back_markup(_):
+def help_back_markup(_, page_num=1):
     upl = InlineKeyboardMarkup(
         [
             [
                 InlineKeyboardButton(
                     text=_["BACK_BUTTON"],
-                    callback_data=f"open_help_panel",
+                    callback_data=f"help_page {page_num}",
                 ),
                 InlineKeyboardButton(
                     text=_["CLOSE_BUTTON"],

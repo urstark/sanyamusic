@@ -1,4 +1,5 @@
 import asyncio
+import aiohttp
 import random
 import time
 from pyrogram import filters
@@ -107,7 +108,7 @@ async def start_pm(client, message: Message, _):
             if await is_on_off(2):
                 await app.send_message(
                     chat_id=config.LOGGER_ID,
-                    text=f"❖ {message.from_user.mention} ᴊᴜsᴛ sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ᴄʜᴇᴄᴋ <b>sᴜᴅᴏʟɪsᴛ</b>.\n\n<b>๏ ᴜsᴇʀ ɪᴅ :</b> <code>{message.from_user.id}</code>\n<b>๏ ᴜsᴇʀɴᴀᴍᴇ :</b> @{message.from_user.username}",
+                    text=f"❍ {message.from_user.mention} ᴊᴜsᴛ sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ᴄʜᴇᴄᴋ <b>sᴜᴅᴏʟɪsᴛ</b>.\n\n<b>๏ ᴜsᴇʀ ɪᴅ :</b> <code>{message.from_user.id}</code>\n<b>๏ ᴜsᴇʀɴᴀᴍᴇ :</b> @{message.from_user.username}",
                 )
         elif name.startswith("inf"):
             query = name.replace("info_", "", 1)
@@ -149,7 +150,7 @@ async def start_pm(client, message: Message, _):
         if await is_on_off(2):
             await app.send_message(
                 chat_id=config.LOGGER_ID,
-                text=f"❖ {message.from_user.mention} ᴊᴜsᴛ sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ʙᴏᴛ.\n\n<b>๏ ᴜsᴇʀ ɪᴅ :</b> <code>{message.from_user.id}</code>\n<b>๏ ᴜsᴇʀɴᴀᴍᴇ :</b> @{message.from_user.username}",
+                text=f"❍ {message.from_user.mention} ᴊᴜsᴛ sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ʙᴏᴛ.\n\n<b>๏ ᴜsᴇʀ ɪᴅ :</b> <code>{message.from_user.id}</code>\n<b>๏ ᴜsᴇʀɴᴀᴍᴇ :</b> @{message.from_user.username}",
             )
 
 @app.on_message(filters.command(["start"]) & filters.group & ~BANNED_USERS)
@@ -200,3 +201,33 @@ async def welcome(client, message: Message):
                 await message.stop_propagation()
         except Exception as ex:
             print(ex)
+
+@app.on_callback_query(filters.regex("api_status"))
+async def api_status_callback(client, query):
+    start_time = time.time()
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(config.HEALTH_API_URL) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    end_time = time.time()
+                    ping = int((end_time - start_time) * 1000)
+                    
+                    is_ok = data.get("status") == "ok"
+                    yt_status = "ʀᴇsᴘᴏɴsɪᴠᴇ" if is_ok else "ᴜɴʀᴇsᴘᴏɴsɪᴠᴇ"
+                    footer = "ᴇᴠᴇʀʏᴛʜɪɴɢ ʟᴏᴏᴋs ɢᴏᴏᴅ!" if is_ok else "ɪssᴜᴇs ᴅᴇᴛᴇᴄᴛᴇᴅ!"
+
+                    text = (
+                        "💌 ʏᴏᴜᴛᴜʙᴇ ᴀᴘɪ sᴛᴀᴛᴜs...\n\n"
+                        "❍ ᴅᴀᴛᴀʙᴀsᴇ: ᴏɴʟɪɴᴇ\n"
+                        f"❍ ʏᴏᴜᴛᴜʙᴇ ᴀᴘɪ: {yt_status}\n"
+                        "❍ ʙᴏᴛ sᴇʀᴠᴇʀ: ʀᴜɴɴɪɴɢ sᴍᴏᴏᴛʜʟʏ\n"
+                        "❍ ʀᴇsᴘᴏɴsᴇ ᴛɪᴍᴇ: ᴏᴘᴛɪᴍᴀʟ\n"
+                        f"❍ ᴀᴘɪ ᴘɪɴɢ: {ping/10:.1f} ᴍs\n\n"
+                        f"{footer}"
+                    )
+                    await query.answer(text, show_alert=True)
+                else:
+                    await query.answer("ғᴀɪʟᴇᴅ ᴛᴏ ғᴇᴛᴄʜ ᴀᴘɪ sᴛᴀᴛᴜs.", show_alert=True)
+    except Exception:
+        await query.answer("ғᴀɪʟᴇᴅ ᴛᴏ ᴄᴏɴɴᴇᴄᴛ ᴛᴏ ᴀᴘɪ.", show_alert=True)

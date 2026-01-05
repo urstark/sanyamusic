@@ -11,7 +11,7 @@
 #
 # ❤️ Made with dedication and love by urstark
 # -----------------------------------------------
-from pyrogram.types import InlineKeyboardButton
+from pyrogram.types import InlineKeyboardButton, WebAppInfo
 import config
 from SANYAMUSIC import app
 
@@ -37,6 +37,10 @@ def private_panel(_):
             )
         ],
         [InlineKeyboardButton(text=_["S_B_4"], callback_data="open_help_panel")],
+        [
+            InlineKeyboardButton(text="⌯ ʏᴛ-ᴀᴘɪ ⌯", callback_data="api_status"),
+            InlineKeyboardButton(text="⌯ ᴍɪɴɪ ᴀᴘᴘ ⌯", web_app=WebAppInfo(url=config.MINI_APP_URL)),
+        ],
         [
             InlineKeyboardButton(text=_["S_B_6"], url=config.SUPPORT_CHANNEL),
             InlineKeyboardButton(text=_["S_B_2"], url=config.SUPPORT_CHAT),

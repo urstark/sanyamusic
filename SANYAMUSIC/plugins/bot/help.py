@@ -51,8 +51,10 @@ async def open_help_panel_cb(client, callback_query: CallbackQuery, _):
 @languageCB
 async def helper_cb(client, callback_query: CallbackQuery, _):
     callback_data = callback_query.data.strip()
-    cb = callback_data.split(None, 1)[1]
-    keyboard = help_back_markup(_)
+    parts = callback_data.split()
+    cb = parts[1]
+    page_num = int(parts[2]) if len(parts) > 2 else 1
+    keyboard = help_back_markup(_, page_num)
     help_text = {
         "hb1": Helper.HELP_1, "hb2": Helper.HELP_2, "hb3": Helper.HELP_3,
         "hb4": Helper.HELP_4, "hb5": Helper.HELP_5, "hb6": Helper.HELP_6,
@@ -66,6 +68,12 @@ async def helper_cb(client, callback_query: CallbackQuery, _):
         "hb28": Helper.HELP_28, "hb29": Helper.HELP_29, "hb30": Helper.HELP_30,
         "hb31": Helper.HELP_31, "hb32": Helper.HELP_32, "hb33": Helper.HELP_33,
         "hb34": Helper.HELP_34, "hb35": Helper.HELP_35,
+        "hb36": Helper.HELP_36, "hb37": Helper.HELP_37, "hb38": Helper.HELP_38,
+        "hb39": Helper.HELP_39, "hb40": Helper.HELP_40, "hb41": Helper.HELP_41,
+        "hb42": Helper.HELP_42, "hb43": Helper.HELP_43, "hb44": Helper.HELP_44,
+        "hb45": Helper.HELP_45, "hb46": Helper.HELP_46, "hb47": Helper.HELP_47,
+        "hb48": Helper.HELP_48, "hb49": Helper.HELP_49, "hb50": Helper.HELP_50,
+        "hb51": Helper.HELP_51,
     }
     if cb in help_text:
         await callback_query.edit_message_text(help_text[cb], reply_markup=keyboard)

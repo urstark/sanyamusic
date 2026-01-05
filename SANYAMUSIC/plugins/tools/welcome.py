@@ -151,7 +151,6 @@ async def greet_new_member(client, member: ChatMemberUpdated):
 **☉ ᴛᴏᴛᴀʟ ᴍᴇᴍʙᴇʀs ⧽** {count}
 
 **▬▭▬▭▬▭▬▭▬▭▬▭▬▭▬**
-**❍ ᴄʀᴇᴀᴛᴇ ʏᴏᴜʀ ᴏᴡɴ ᴄʟᴏɴᴇ:** @{app.me.username}
 """,
                 reply_markup=InlineKeyboardMarkup([
                     [InlineKeyboardButton(button_text, url=deep_link)],
@@ -172,7 +171,6 @@ async def greet_new_member(client, member: ChatMemberUpdated):
 **☉ ᴛᴏᴛᴀʟ ᴍᴇᴍʙᴇʀs ⧽** {count}
 
 **▬▭▬▭▬▭▬▭▬▭▬▭▬▭▬**
-**❍ ᴄʀᴇᴀᴛᴇ ʏᴏᴜʀ ᴏᴡɴ ᴄʟᴏɴᴇ:** @{app.me.username}
 """,
                     reply_markup=InlineKeyboardMarkup([
                         [InlineKeyboardButton(text=add_button_text, url=add_link)],

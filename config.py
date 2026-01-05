@@ -43,6 +43,12 @@ SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/SanyaxSupport")
 # YT-API
 YT_API_TOKEN = getenv("YT_API_TOKEN")
 
+# Health API
+HEALTH_API_URL = getenv("HEALTH_API_URL", "http://api.nubcoder.com/health")
+
+# Mini App
+MINI_APP_URL = getenv("MINI_APP_URL", "https://chorusx.vercel.app")
+
 # Assistant settings
 AUTO_LEAVING_ASSISTANT = getenv("AUTO_LEAVING_ASSISTANT", "True")
 AUTO_LEAVE_ASSISTANT_TIME = int(getenv("ASSISTANT_LEAVE_TIME", "9000"))
@@ -110,11 +116,3 @@ if SUPPORT_CHANNEL and not re.match(r"(?:http|https)://", SUPPORT_CHANNEL):
 
 if SUPPORT_CHAT and not re.match(r"(?:http|https)://", SUPPORT_CHAT):
     raise SystemExit("[ERROR] - Your SUPPORT_CHAT url is invalid. It must start with https://")
-
-
-
-
-
-
-
-

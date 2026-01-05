@@ -13,8 +13,8 @@ def gtts_convert(text):
         filepath = 'speech.mp3'
         tts.save(filepath)
         return filepath
-    except Exception as e:
-        print(f"gTTS error: {e}")
+    except Exception:
+        print(f"gTTS error")
         return None
 
 @app.on_message(filters.command('tts'))
