@@ -1,6 +1,5 @@
 <h2 align="center">
     ─「 𝑆𝑎𝑛𝑦𝑎 ‹𝟹 」─
-
 </h2>
 
 [![Typing SVG](https://readme-typing-svg.herokuapp.com/?lines=ㅤ+𝑊𝑒𝑙𝑐𝑜𝑚𝑒+𝑡𝑜+𝑆𝑎𝑛𝑦𝑎+𝑏𝑜𝑡+𝑟𝑒𝑝𝑜+;ㅤ+𝑀𝑜𝑠𝑡+𝑎𝑑𝑣𝑎𝑛𝑐𝑒+𝑀𝑢𝑠𝑖𝑐/𝑀𝑎𝑛𝑎𝑔𝑒𝑚𝑒𝑛𝑡+𝑏𝑜𝑡+;𝑀𝑎𝑑𝑒+𝑏𝑦+~+𝑆𝑡𝑎𝑟𝑘)](https://github.com/urstark/Sanyamusic)
@@ -46,20 +45,17 @@ Features<p>
 :⧽ A lot more tired of writing check out by deploying it. 
 </details>
 
----
-
-
 ## ❍ Commands
 <div align="center">
-𝑆𝑡𝑎𝑟𝑡 𝑆𝑎𝑛𝑦𝑎 𝐵𝑜𝑡 𝑡𝑜 𝑠𝑒𝑒 𝑎𝑙𝑙 𝑐𝑜𝑚𝑚𝑎𝑛𝑑𝑠 
+𝑆𝑡𝑎𝑟𝑡 𝑆𝑎𝑛𝑦𝑎 𝐵𝑜𝑡 𝑡𝑜 𝑠𝑒𝑒 𝑎𝑙𝑙 𝑐𝑜𝑚𝑚𝑎𝑛𝑑𝑠 𝑜𝑟 𝑠𝑒𝑒 commands.txt 𝑓𝑖𝑙𝑒
 </div>
 
- [@𝑆𝑎𝑛𝑦𝑎](https://t.me/SanyaxMusicBot) 
+ [@𝑆𝑎𝑛𝑦𝑎](https://t.me/SanyaxMusicBot) & [commands.txt](https://github.com/urstark/sanyamusic/blob/main/commands.txt)
 
 :⧽ Channel Support
 Bot also Supported with Channels. Just add bot and assistant to the Channel as Admin. </details>
 
----
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
 ## ❍ How to make your own :
 
@@ -348,7 +344,7 @@ To get an instant result do /reboot in chat of logger .
 
 </details>
 
----
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
 ## ❍ Stats
 
@@ -390,7 +386,7 @@ To get an instant result do /reboot in chat of logger .
 
 </div>
 
----
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
 ### ❍ Credits : 
 
@@ -409,8 +405,9 @@ To get an instant result do /reboot in chat of logger .
 - [Telegram](https://t.me/cuxrs)
 - Everyone In This Journey !
 
----
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
  
+
 
 
 
