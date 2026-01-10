@@ -1,9 +1,9 @@
 <h2 align="center">
-    ─「 Sᴀɴʏᴀ 𝘅 𝐌ᴜsɪᴄ 」─
+    ─「 𝑆𝑎𝑛𝑦𝑎 ‹𝟹 」─
 
 </h2>
 
-[![Typing SVG](https://readme-typing-svg.herokuapp.com/?lines=ㅤ+𝚆𝙴𝙻𝙲𝙾𝙼𝙴+𝚃𝙾+𝚂𝙰𝙽𝚈𝙰+𝙼𝚄𝚂𝙸𝙲+𝚁𝙴𝙿𝙾+;ㅤ+𝚃𝙷𝙸𝚂+𝙸𝚂+𝙰+𝙰𝙳𝚅𝙰𝙽𝙲𝙴+𝙼𝚄𝚂𝙸𝙲+𝙱𝙾𝚃;𝙿𝙾𝚆𝙴𝚁𝙴𝙳+𝙱𝚈+☞+𝐒𝐓𝐀𝐑𝐊)](https://github.com/urSTARK/Sanyamusic)
+[![Typing SVG](https://readme-typing-svg.herokuapp.com/?lines=ㅤ+𝑊𝑒𝑙𝑐𝑜𝑚𝑒+𝑡𝑜+𝑆𝑎𝑛𝑦𝑎+𝑏𝑜𝑡+𝑟𝑒𝑝𝑜+;ㅤ+𝑀𝑜𝑠𝑡+𝑎𝑑𝑣𝑎𝑛𝑐𝑒+𝑀𝑢𝑠𝑖𝑐/𝑀𝑎𝑛𝑎𝑔𝑒𝑚𝑒𝑛𝑡+𝑏𝑜𝑡+;𝑀𝑎𝑑𝑒+𝑏𝑦+~+𝑆𝑡𝑎𝑟𝑘)](https://github.com/urstark/Sanyamusic)
 
 
 
@@ -13,19 +13,9 @@
 
 
 
-![Typing SVG](https://readme-typing-svg.herokuapp.com/?lines=𝗙𝗢𝗥𝗞+𝗧𝗛𝗜𝗦+𝗥𝗘𝗣𝗢+𝗕𝗘𝗙𝗢𝗥𝗘+𝗗𝗘𝗣𝗟𝗢𝗬)
+![Typing SVG](https://readme-typing-svg.herokuapp.com/?lines=𝑓𝑜𝑟𝑘+𝑡ℎ𝑖𝑠+𝑟𝑒𝑝𝑜+𝑎𝑛𝑑+𝑑𝑒𝑝𝑙𝑜𝑦)
 
-
-## 🍁 About This Bot :
-
-</p>
-<p align='center'>
-    This repo will use to deploy for music playing bot of telegram
-</p>
-
----
-
-## ✨ Features
+## 🍁 Features
 
 <div align="center">
 
@@ -42,53 +32,42 @@
   
 <p>
 
-🚀Features<p>
-💥Superfast⚡️ download and stream links.<br>
-💥No ads in playing songs.<br>
-💥Superfast interface.<br>
-💥Updates channel Support.<br>
-💥Mongodb database support for broadcasting.<br>
-💥User Freindly Interface.<br>
-💥Ping check.<br>
-💥Kickme and Video Chat Notifier are Available.<br>
-💥Real time CPU , RAM , Internet usage. <br>
-💥All unwanted code removed. <br>
-💥A lot more tired of writing check out by deploying it. 
+Features<p>
+❍ Superfast⚡️ download and stream links.<br>
+❍ No ads in playing songs.<br>
+❍ Superfast interface.<br>
+❍ Updates channel Support.<br>
+❍ Mongodb database support for broadcasting.<br>
+❍ User Freindly Interface.<br>
+❍ Ping check.<br>
+❍ Kickme and Video Chat Notifier are Available.<br>
+❍ Real time CPU , RAM , Internet usage. <br>
+❍ All unwanted code removed. <br>
+❍ A lot more tired of writing check out by deploying it. 
 </details>
 
 ---
 
 
-## 🎯 Commands
-
+## ❍ Commands
 <div align="center">
-
-| Command | Description |
-|:---:|:---:|
-| `/play [song]` | Play music |
-| `/pause` | Pause playback |
-| `/resume` | Resume playback |
-| `/skip` | Skip track |
-| `/stop` | Stop playback |
-| `/playlist` | View playlist |
-| `/song [name]` | Download audio |
-| `/settings` | Bot settings |
-
+𝑆𝑡𝑎𝑟𝑡 𝑆𝑎𝑛𝑦𝑎 𝐵𝑜𝑡 𝑡𝑜 𝑠𝑒𝑒 𝑎𝑙𝑙 𝑐𝑜𝑚𝑚𝑎𝑛𝑑𝑠 
 </div>
 
-## Channel Support
+ [@𝑆𝑎𝑛𝑦𝑎](https://t.me/SanyaxMusicBot) 
+
+## ❍ Channel Support
 Bot also Supported with Channels. Just add bot and assistant to the Channel as Admin. </details>
 
 ---
 
-## ♢ How to make your own :
+## ❍ How to make your own :
 
 
 #### ♢ Click on This Drop-down and get more details
 <br>
 <details>
   <summary><b>Deploy on Heroku:</b></summary>
-
 
 1. Fork This Repo
 2. Click on the button to Deploy and follow steps
@@ -389,22 +368,16 @@ To get an instant result do /reboot in chat of logger .
 
 </div>
 
----
-
 ## Support
 
 <div align="center">
 
 | **Support Channel** | **Owner id** |
 |:---:|:---:|
-| [![Channel](https://img.shields.io/badge/Join%20Channel-black?style=for-the-badge&logo=telegram)](https://t.me/SanyaxSupport) | [![Owner](https://img.shields.io/badge/Join%20Group-black?style=for-the-badge&logo=telegram)](https://t.me/cuxrs) |
+| [![Channel](https://img.shields.io/badge/Join%20Channel-black?style=for-the-badge&logo=telegram)](https://t.me/SanyaxSupport) | [![Owner](https://img.shields.io/badge/Dm%20Owner-black?style=for-the-badge&logo=telegram)](https://t.me/cuxrs) |
 | Latest Updates | 24/7 Help & Support |
 
----
-
 <img src="https://img.shields.io/badge/Made%20with%20%E2%9D%A4%EF%B8%8F%20by-Stark-red?style=for-the-badge&logo=heart" alt="Made with love">
-
----
 
 <p align="center">
   <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=22&duration=3000&pause=1000&color=00D9FF&center=true&vCenter=true&width=600&lines=Fast+%F0%9F%9A%80+Reliable+%F0%9F%94%92+High+Quality+%F0%9F%8E%B5;10x+Faster+with+API+%E2%9A%A1;Join+Our+Community+%F0%9F%92%AC" alt="Typing SVG">
@@ -433,3 +406,4 @@ To get an instant result do /reboot in chat of logger .
 
 ---
  
+
