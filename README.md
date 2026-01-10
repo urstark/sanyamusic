@@ -377,9 +377,11 @@ To get an instant result do /reboot in chat of logger .
 | [![Channel](https://img.shields.io/badge/Join%20Channel-black?style=for-the-badge&logo=telegram)](https://t.me/SanyaxSupport) | [![Owner](https://img.shields.io/badge/Dm%20Owner-black?style=for-the-badge&logo=telegram)](https://t.me/cuxrs) |
 | Latest Updates | 24/7 Help & Support |
 
-##ㅤ
+## ㅤ
 
 <img src="https://img.shields.io/badge/Made%20with%20%E2%9D%A4%EF%B8%8F%20by-Stark-red?style=for-the-badge&logo=heart" alt="Made with love">
+
+ㅤ
 
 <p align="center">
   <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=22&duration=3000&pause=1000&color=00D9FF&center=true&vCenter=true&width=600&lines=Fast+%F0%9F%9A%80+Reliable+%F0%9F%94%92+High+Quality+%F0%9F%8E%B5;10x+Faster+with+API+%E2%9A%A1;Join+Our+Community+%F0%9F%92%AC" alt="Typing SVG">
@@ -408,5 +410,6 @@ To get an instant result do /reboot in chat of logger .
 
 ---
  
+
 
 
