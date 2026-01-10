@@ -8,7 +8,7 @@
 
 
 <p align="center">
-  <img src="https://files.catbox.moe/d3trfw.jpg">
+  <img src="https://files.catbox.moe/63kmhd.jpg">
 </p>
 
 
@@ -33,17 +33,17 @@
 <p>
 
 Features<p>
-❍ Superfast⚡️ download and stream links.<br>
-❍ No ads in playing songs.<br>
-❍ Superfast interface.<br>
-❍ Updates channel Support.<br>
-❍ Mongodb database support for broadcasting.<br>
-❍ User Freindly Interface.<br>
-❍ Ping check.<br>
-❍ Kickme and Video Chat Notifier are Available.<br>
-❍ Real time CPU , RAM , Internet usage. <br>
-❍ All unwanted code removed. <br>
-❍ A lot more tired of writing check out by deploying it. 
+:⧽ Superfast⚡️ download and stream links.<br>
+:⧽ No ads in playing songs.<br>
+:⧽ Superfast interface.<br>
+:⧽ Updates channel Support.<br>
+:⧽ Mongodb database support for broadcasting.<br>
+:⧽ User Freindly Interface.<br>
+:⧽ Ping check.<br>
+:⧽ Kickme and Video Chat Notifier are Available.<br>
+:⧽ Real time CPU , RAM , Internet usage. <br>
+:⧽ All unwanted code removed. <br>
+:⧽ A lot more tired of writing check out by deploying it. 
 </details>
 
 ---
@@ -56,7 +56,7 @@ Features<p>
 
  [@𝑆𝑎𝑛𝑦𝑎](https://t.me/SanyaxMusicBot) 
 
-## ❍ Channel Support
+:⧽ Channel Support
 Bot also Supported with Channels. Just add bot and assistant to the Channel as Admin. </details>
 
 ---
@@ -88,7 +88,8 @@ Either you could locally host or deploy on [Heroku](https://heroku.com)
 
 <p align="center"><a href="https://dashboard.heroku.com/new?template=https://github.com/urSTARK/Sanyamusic"> <img src="https://www.herokucdn.com/deploy/button.svg"></a></p>
 
-then goto the <a href="#mandatory-vars">variables tab</a> for more info on setting up environmental variables. </details>
+then goto the <a href="#mandatory-vars">variables tab</a> for more info on setting up environmental variables. 
+</details>
 
 <br>
 <details>
@@ -115,7 +116,8 @@ Either you could locally host or deploy on [Railway](https://railway.com))
 <p align="center"><a href="https://railway.com/deploy/victorious-passion?referralCode=O3RDoQ&utm_medium=integration&utm_source=template&utm_campaign=generic"> <img src="https://railway.com/button.svg"></a></p>
 <br>
 
-then goto the <a href="#mandatory-vars">variables tab</a> for more info on setting up environmental variables. </details>
+then goto the <a href="#mandatory-vars">variables tab</a> for more info on setting up environmental variables. 
+</details>
 
 <br>
 
@@ -275,6 +277,8 @@ STRING_SESSION=
 ```
   </details>
 
+<br>
+
 <details>
   <summary><b>Vars and Details :</b></summary>
 
@@ -328,9 +332,8 @@ To get an instant result do /reboot in chat of logger .
 ![image](https://graph.org/file/801e199f756d83cb4d7f5-068bb84543385c04b6.jpg)
 </details>
 
----
-
 <details>
+    
 <summary><b>Common Issues</b></summary>
 
 <br>
@@ -347,7 +350,7 @@ To get an instant result do /reboot in chat of logger .
 
 ---
 
-## Stats
+## ❍ Stats
 
 <div align="center">
 
@@ -358,9 +361,7 @@ To get an instant result do /reboot in chat of logger .
 
 </div>
 
----
-
-## License 
+## ❍ License 
 
 <div align="center">
 
@@ -368,7 +369,7 @@ To get an instant result do /reboot in chat of logger .
 
 </div>
 
-## Support
+## ❍ Support
 
 <div align="center">
 
@@ -378,7 +379,7 @@ To get an instant result do /reboot in chat of logger .
 | Latest Updates | 24/7 Help & Support |
 
 ## ㅤ
-
+<br>
 <img src="https://img.shields.io/badge/Made%20with%20%E2%9D%A4%EF%B8%8F%20by-Stark-red?style=for-the-badge&logo=heart" alt="Made with love">
 
 ㅤ
@@ -391,7 +392,7 @@ To get an instant result do /reboot in chat of logger .
 
 ---
 
-### Credits : 
+### ❍ Credits : 
 
 <div align="center">
 
@@ -410,6 +411,7 @@ To get an instant result do /reboot in chat of logger .
 
 ---
  
+
 
 
 
