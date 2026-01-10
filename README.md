@@ -377,6 +377,8 @@ To get an instant result do /reboot in chat of logger .
 | [![Channel](https://img.shields.io/badge/Join%20Channel-black?style=for-the-badge&logo=telegram)](https://t.me/SanyaxSupport) | [![Owner](https://img.shields.io/badge/Dm%20Owner-black?style=for-the-badge&logo=telegram)](https://t.me/cuxrs) |
 | Latest Updates | 24/7 Help & Support |
 
+##ㅤ
+
 <img src="https://img.shields.io/badge/Made%20with%20%E2%9D%A4%EF%B8%8F%20by-Stark-red?style=for-the-badge&logo=heart" alt="Made with love">
 
 <p align="center">
@@ -406,4 +408,5 @@ To get an instant result do /reboot in chat of logger .
 
 ---
  
+
 
