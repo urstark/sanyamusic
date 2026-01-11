@@ -25,6 +25,7 @@ MONGO_DB_URI = getenv("MONGO_DB_URI")
 DURATION_LIMIT_MIN = int(getenv("DURATION_LIMIT", 17000))
 LOGGER_ID = int(getenv("LOGGER_ID"))
 OWNER_ID = int(getenv("OWNER_ID"))
+POST_CHANNEL_ID = int(getenv("POST_CHANNEL_ID", "-1003192209705"))
 
 # Heroku
 HEROKU_APP_NAME = getenv("HEROKU_APP_NAME")
@@ -116,3 +117,4 @@ if SUPPORT_CHANNEL and not re.match(r"(?:http|https)://", SUPPORT_CHANNEL):
 
 if SUPPORT_CHAT and not re.match(r"(?:http|https)://", SUPPORT_CHAT):
     raise SystemExit("[ERROR] - Your SUPPORT_CHAT url is invalid. It must start with https://")
+
