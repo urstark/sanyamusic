@@ -148,7 +148,7 @@ async def kang(client, message: Message):
                 stickerset = await create_sticker_set(
                     client,
                     message.from_user.id,
-                    f"{message.from_user.first_name[:32]}'s kang pack",
+                    f"{message.from_user.first_name[:32]}'s kang pack by @{bot_username}",
                     packname,
                     [sticker],
                 )
@@ -166,8 +166,9 @@ async def kang(client, message: Message):
             break
 
         await msg.edit(
-            "Sticker Kanged To [Pack](t.me/addstickers/{})\nEmoji: {}".format(
-                packname, sticker_emoji
+            "Sticker Kanged.\nEmoji: {}".format(sticker_emoji),
+            reply_markup=InlineKeyboardMarkup(
+                [[InlineKeyboardButton(text="View Pack", url=f"https://t.me/addstickers/{packname}")]]
             )
         )
     except (PeerIdInvalid, UserIsBlocked):
