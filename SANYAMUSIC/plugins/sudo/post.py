@@ -1,7 +1,7 @@
 
 from pyrogram import Client, filters
 from SANYAMUSIC import app
-from config import OWNER_ID, BOT_USERNAME
+from config import OWNER_ID, BOT_USERNAME, POST_CHANNEL_ID
 from pyrogram.types import Message
 
 @app.on_message(filters.command(["post"], prefixes=["/", "."]) & filters.user(OWNER_ID))
@@ -9,7 +9,7 @@ async def copy_messages(_, message):
 
     if message.reply_to_message:
       
-        destination_group_id = -1003192209705
+        destination_group_id = POST_CHANNEL_ID
  
 
         
