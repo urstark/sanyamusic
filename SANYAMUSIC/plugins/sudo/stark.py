@@ -7,7 +7,7 @@ from pyrogram.types import *
 from SANYAMUSIC.utils.Sanya_ban import admin_filter
 
 
-shashank_text = [
+stark_text = [
 "hey please don't disturb me.",
 "who are you",    
 "aap kon ho",
@@ -24,11 +24,10 @@ shashank_text = [
 strict_txt = [
 "i can't restrict against my besties",
 "are you serious i am not restrict to my friends",
-"fuck you bsdk k mai apne dosto ko kyu kru",
 "hey stupid admin ", 
-"ha ye phele krlo maar lo ek dusre ki gwaand",  
-"i can't hi is my closest friend",
-"i love him please don't restict this user try to usertand "
+"ha ye phele krlo maar lo ek dusre ko",  
+"i can't, he is my closest friend",
+"i love him please don't restict this user try to understand "
 ]
 
 
@@ -49,14 +48,13 @@ channel = ["channel"]
 # ========================================= #
 
 
-@app.on_message(filters.command(["tark","anya","aby"], prefixes=["s", "B", "S", "b"]) & admin_filter)
+@app.on_message(filters.command(["stark", "sanya", "baby"], prefixes=["/", "!", ""]) & admin_filter)
 async def restriction_app(client, message):
     reply = message.reply_to_message
     chat_id = message.chat.id
-    if len(message.text) < 2:
-        return await message.reply(random.choice(shashank_text))
-    bruh = message.text.split(maxsplit=1)[1]
-    data = bruh.split(" ")
+    if len(message.command) < 2:
+        return await message.reply(random.choice(stark_text))
+    data = [x.lower() for x in message.command[1:]]
     
     if reply:
         user_id = reply.from_user.id
@@ -138,19 +136,18 @@ async def restriction_app(client, message):
                 await message.reply("ᴅᴇᴍᴏᴛᴇᴅ !")
 
 
-#async def your_function():
-    for fullpromoted in data:
-        print(f"present {fullpromoted}")            
-        if fullpromoted in fullpromote:
-            await client.promote_chat_member(chat_id, user_id, privileges=ChatPrivileges(
-                can_change_info=True,
-                can_invite_users=True,
-                can_delete_messages=True,
-                can_restrict_members=True,
-                can_pin_messages=True,
-                can_promote_members=True,
-                can_manage_chat=True,
-                can_manage_video_chats=True,
-               )
-             )
-            await message.reply("sᴜʀᴇ, ᴜsᴇʀ ʜᴀs ʙᴇᴇɴ ғᴜʟʟᴘʀᴏᴍᴏᴛᴇᴅ! ᴡɪᴛʜ ᴀʟʟ ʀɪɢʜᴛs.")
+        for fullpromoted in data:
+            print(f"present {fullpromoted}")            
+            if fullpromoted in fullpromote:
+                await client.promote_chat_member(chat_id, user_id, privileges=ChatPrivileges(
+                    can_change_info=True,
+                    can_invite_users=True,
+                    can_delete_messages=True,
+                    can_restrict_members=True,
+                    can_pin_messages=True,
+                    can_promote_members=True,
+                    can_manage_chat=True,
+                    can_manage_video_chats=True,
+                   )
+                 )
+                await message.reply("sᴜʀᴇ, ᴜsᴇʀ ʜᴀs ʙᴇᴇɴ ғᴜʟʟᴘʀᴏᴍᴏᴛᴇᴅ! ᴡɪᴛʜ ᴀʟʟ ʀɪɢʜᴛs.")
