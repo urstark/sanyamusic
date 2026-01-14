@@ -38,10 +38,6 @@ def private_panel(_):
         ],
         [InlineKeyboardButton(text=_["S_B_4"], callback_data="open_help_panel")],
         [
-            InlineKeyboardButton(text="⌯ ʏᴛ-ᴀᴘɪ ⌯", callback_data="api_status"),
-            InlineKeyboardButton(text="⌯ ᴍɪɴɪ ᴀᴘᴘ ⌯", web_app=WebAppInfo(url=config.MINI_APP_URL)),
-        ],
-        [
             InlineKeyboardButton(text=_["S_B_6"], url=config.SUPPORT_CHANNEL),
             InlineKeyboardButton(text=_["S_B_2"], url=config.SUPPORT_CHAT),
         ],
@@ -49,4 +45,5 @@ def private_panel(_):
             InlineKeyboardButton(text=_["S_B_5"], user_id=config.OWNER_ID),
         ],
     ]
+
     return buttons
