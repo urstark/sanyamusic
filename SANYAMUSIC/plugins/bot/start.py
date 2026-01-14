@@ -83,7 +83,7 @@ async def start_pm(client, message: Message, _):
     await client.send_chat_action(message.chat.id, ChatAction.TYPING)
 
     # 4. Layer 2: Separate "Starting" Message
-    starting_msg = await message.reply_text("**__𝐻𝑖𝑒𝑒 𝐶𝑢𝑡𝑖𝑒𝑒𝑠 ‹𝟹__**")
+    starting_msg = await message.reply_text("**__𝐻𝑖𝑒𝑒 𝐶𝑢𝑡𝑖𝑒𝑒 __**")
     await asyncio.sleep(0.6) 
     await starting_msg.delete()
 
@@ -202,32 +202,3 @@ async def welcome(client, message: Message):
         except Exception as ex:
             print(ex)
 
-@app.on_callback_query(filters.regex("api_status"))
-async def api_status_callback(client, query):
-    start_time = time.time()
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(config.HEALTH_API_URL) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    end_time = time.time()
-                    ping = int((end_time - start_time) * 1000)
-                    
-                    is_ok = data.get("status") == "ok"
-                    yt_status = "ʀᴇsᴘᴏɴsɪᴠᴇ" if is_ok else "ᴜɴʀᴇsᴘᴏɴsɪᴠᴇ"
-                    footer = "ᴇᴠᴇʀʏᴛʜɪɴɢ ʟᴏᴏᴋs ɢᴏᴏᴅ!" if is_ok else "ɪssᴜᴇs ᴅᴇᴛᴇᴄᴛᴇᴅ!"
-
-                    text = (
-                        "💌 ʏᴏᴜᴛᴜʙᴇ ᴀᴘɪ sᴛᴀᴛᴜs...\n\n"
-                        "❍ ᴅᴀᴛᴀʙᴀsᴇ: ᴏɴʟɪɴᴇ\n"
-                        f"❍ ʏᴏᴜᴛᴜʙᴇ ᴀᴘɪ: {yt_status}\n"
-                        "❍ ʙᴏᴛ sᴇʀᴠᴇʀ: ʀᴜɴɴɪɴɢ sᴍᴏᴏᴛʜʟʏ\n"
-                        "❍ ʀᴇsᴘᴏɴsᴇ ᴛɪᴍᴇ: ᴏᴘᴛɪᴍᴀʟ\n"
-                        f"❍ ᴀᴘɪ ᴘɪɴɢ: {ping/10:.1f} ᴍs\n\n"
-                        f"{footer}"
-                    )
-                    await query.answer(text, show_alert=True)
-                else:
-                    await query.answer("ғᴀɪʟᴇᴅ ᴛᴏ ғᴇᴛᴄʜ ᴀᴘɪ sᴛᴀᴛᴜs.", show_alert=True)
-    except Exception:
-        await query.answer("ғᴀɪʟᴇᴅ ᴛᴏ ᴄᴏɴɴᴇᴄᴛ ᴛᴏ ᴀᴘɪ.", show_alert=True)
