@@ -15,7 +15,7 @@ import random
 
 bg_path = "SANYAMUSIC/assets/userinfo.png"
 font_path = "SANYAMUSIC/assets/hiroko.ttf"
-DEFAULT_PROFILE_IMAGE = "SANYAMUSIC/assets/sanyainfo.jpg" 
+DEFAULT_PROFILE_IMAGE = "SANYAMUSIC/assets/upic.png" 
 
 INFO_TEXT = """**
 [ᯤ] 𝗨𝗦𝗘𝗥 𝗜𝗡𝗙𝗢𝗥𝗠𝗔𝗡𝗧𝗢𝗡 [ᯤ]
@@ -135,3 +135,4 @@ async def userinfo(_, message):
 
     except Exception as e:
         await message.reply_text(f"**ᴇʀʀᴏʀ:** `{str(e)}`")
+
