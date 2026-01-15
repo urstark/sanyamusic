@@ -15,7 +15,7 @@ async def auto_delete_afk(msg, delay=30):
     except:
         pass
 
-@app.on_message(filters.command(["afk", "brb", "ye", "bye", "Bye"], prefixes=["/", "!", ""]))
+@app.on_message(filters.command(["afk", "brb"], prefixes=["/", "!"]))
 async def active_afk(_, message: Message):
     if message.sender_chat:
         return
@@ -273,3 +273,4 @@ async def chat_watcher_func(_, message):
             asyncio.create_task(auto_delete_afk(send))
         except:
             return
+
