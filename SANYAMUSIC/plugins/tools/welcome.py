@@ -1,4 +1,3 @@
-
 from SANYAMUSIC import app
 from pyrogram.errors import RPCError, ButtonUserPrivacyRestricted
 from pyrogram.types import ChatMemberUpdated, InlineKeyboardMarkup, InlineKeyboardButton
@@ -18,14 +17,6 @@ from SANYAMUSIC.utils.Sanya_ban import admin_filter
 
 LOGGER = getLogger(__name__)
 
-random_photo = [
-    "https://telegra.ph/file/1949480f01355b4e87d26.jpg",
-    "https://telegra.ph/file/3ef2cc0ad2bc548bafb30.jpg",
-    "https://telegra.ph/file/a7d663cd2de689b811729.jpg",
-    "https://telegra.ph/file/6f19dc23847f5b005e922.jpg",
-    "https://telegra.ph/file/2973150dd62fd27a3a6ba.jpg",
-]
-
 # --------------------------------------------------------------------------------- #
 class WelDatabase:
     def __init__(self):
@@ -36,7 +27,7 @@ class WelDatabase:
 
     async def add_wlcm(self, chat_id):
         if chat_id not in self.data:
-            self.data[chat_id] = {"state": "on"}  # Default state is "on"
+            self.data[chat_id] = {"state": "on"}
 
     async def rm_wlcm(self, chat_id):
         if chat_id in self.data:
@@ -52,6 +43,7 @@ class temp:
     U_NAME = None
     B_NAME = None
 
+# --------------------------------------------------------------------------------- #
 
 def circle(pfp, size=(535, 535), brightness_factor=10):
     pfp = pfp.resize(size).convert("RGBA")
@@ -76,9 +68,21 @@ def welcomepic(pic, user, chatname, id, uname, brightness_factor=1.3):
     draw.text((655, 465), f'ID: {id}', fill=(255, 255, 255), font=font)
     pfp_position = (50, 90)
     background.paste(pfp, pfp_position, pfp)
-    background.save(f"downloads/welcome#{id}.png")
-    return f"downloads/welcome#{id}.png"
+    path = f"downloads/welcome#{id}.png"
+    background.save(path)
+    return path
 
+# --------------------------------------------------------------------------------- #
+
+async def auto_delete_msg(msg, delay):
+    """Helper function to delete message after a delay."""
+    await asyncio.sleep(delay)
+    try:
+        await msg.delete()
+    except Exception:
+        pass
+
+# --------------------------------------------------------------------------------- #
 
 @app.on_message(filters.command("welcome") & ~filters.private)
 async def auto_state(client, message):
@@ -124,12 +128,6 @@ async def greet_new_member(client, member: ChatMemberUpdated):
         except AttributeError:
             pic = "SANYAMUSIC/assets/upic.png"
 
-        if temp.MELCOW.get(f"welcome-{chat_id}") is not None:
-            try:
-                await temp.MELCOW[f"welcome-{chat_id}"].delete()
-            except Exception as e:
-                LOGGER.error(e)
-
         try:
             welcomeimg = welcomepic(pic, user.first_name, member.chat.title, user.id, user.username)
             button_text = "๏ ᴠɪᴇᴡ ɴᴇᴡ ᴍᴇᴍʙᴇʀ ๏"
@@ -137,11 +135,7 @@ async def greet_new_member(client, member: ChatMemberUpdated):
             deep_link = f"tg://openmessage?user_id={user.id}"
             add_link = f"https://t.me/{client.me.username}?startgroup=true"
 
-            try:
-                msg = await client.send_photo(
-                chat_id,
-                photo=welcomeimg,
-                caption=f"""
+            caption_text = f"""
 ㅤㅤ◦•●◉✿ ᴡᴇʟᴄᴏᴍᴇ ✿◉●•◦
 **▬▭▬▭▬▭▬▭▬▭▬▭▬▭▬**
 
@@ -151,37 +145,33 @@ async def greet_new_member(client, member: ChatMemberUpdated):
 **☉ ᴛᴏᴛᴀʟ ᴍᴇᴍʙᴇʀs ⧽** {count}
 
 **▬▭▬▭▬▭▬▭▬▭▬▭▬▭▬**
-""",
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton(button_text, url=deep_link)],
-                    [InlineKeyboardButton(text=add_button_text, url=add_link)],
-                ])
-            )
+"""
+            
+            try:
+                msg = await client.send_photo(
+                    chat_id,
+                    photo=welcomeimg,
+                    caption=caption_text,
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton(button_text, url=deep_link)],
+                        [InlineKeyboardButton(text=add_button_text, url=add_link)],
+                    ])
+                )
             except ButtonUserPrivacyRestricted:
                 msg = await client.send_photo(
                     chat_id,
                     photo=welcomeimg,
-                    caption=f"""
-ㅤㅤ◦•●◉✿ ᴡᴇʟᴄᴏᴍᴇ ✿◉●•◦
-**▬▭▬▭▬▭▬▭▬▭▬▭▬▭▬**
-
-**☉ ɴᴀᴍᴇ ⧽** {user.mention}
-**☉ ɪᴅ ⧽** `{user.id}`
-**☉ ᴜ_ɴᴀᴍᴇ ⧽** @{user.username if user.username else 'None'}
-**☉ ᴛᴏᴛᴀʟ ᴍᴇᴍʙᴇʀs ⧽** {count}
-
-**▬▭▬▭▬▭▬▭▬▭▬▭▬▭▬**
-""",
+                    caption=caption_text,
                     reply_markup=InlineKeyboardMarkup([
                         [InlineKeyboardButton(text=add_button_text, url=add_link)],
                     ])
                 )
 
-            temp.MELCOW[f"welcome-{chat_id}"] = msg
+            if os.path.exists(welcomeimg):
+                os.remove(welcomeimg)
 
-            # ✅ Auto-delete welcome message in 3 minutes
-            await asyncio.sleep(300)
-            await msg.delete()
+            # AUTO-DELETE: Task starts in background, message deletes after 120 seconds (2 minutes)
+            asyncio.create_task(auto_delete_msg(msg, 120))
 
         except Exception as e:
             LOGGER.error(e)
