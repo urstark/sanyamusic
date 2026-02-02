@@ -1,0 +1,17 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# SanyaMusic specific temporary files and secrets
+*.session
+*.session-journal
+log.txt
+downloads/
+raw_files/
+cache/
