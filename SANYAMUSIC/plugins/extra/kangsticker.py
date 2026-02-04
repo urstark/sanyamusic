@@ -88,26 +88,25 @@ async def kang(client, message: Message):
     else:
         sticker_emoji = "🤔"
 
-    # Get the corresponding fileid, resize the file if necessary
-    doc = message.reply_to_message.photo or message.reply_to_message.document
+    temp_file_path = None
     try:
         if message.reply_to_message.sticker:
-            sticker = await create_sticker(
-                await get_document_from_file_id(
-                    message.reply_to_message.sticker.file_id
-                ),
-                sticker_emoji,
+            sticker_doc = await get_document_from_file_id(
+                message.reply_to_message.sticker.file_id
             )
-        elif doc:
+        else:
+            doc = message.reply_to_message.photo or message.reply_to_message.document
+            if not doc:
+                return await msg.edit("ɴᴏᴘᴇ, ᴄᴀɴ'ᴛ ᴋᴀɴɢ ᴛʜᴀᴛ.")
+
             if doc.file_size > 10000000:
                 return await msg.edit("ғɪʟᴇ sɪᴢᴇ ᴛᴏᴏ ʟᴀʀɢᴇ.")
 
             temp_file_path = await app.download_media(doc)
             image_type = imghdr.what(temp_file_path)
             if image_type not in SUPPORTED_TYPES:
-                return await msg.edit(
-                    "ғᴏʀᴍᴀᴛ ɴᴏᴛ sᴜᴘᴘᴏʀᴛᴇᴅ! ({})".format(image_type)
-                )
+                return await msg.edit(f"ғᴏʀᴍᴀᴛ ɴᴏᴛ sᴜᴘᴘᴏʀᴛᴇᴅ! ({image_type})")
+
             try:
                 temp_file_path = await resize_file_to_sticker_size(
                     temp_file_path
@@ -117,56 +116,38 @@ async def kang(client, message: Message):
                 raise Exception(
                     f"sᴏᴍᴇᴛʜɪɴɢ ᴡʀᴏɴɢ ʜᴀᴘᴘᴇɴᴇᴅ ᴡʜɪʟᴇ ʀᴇsɪᴢɪɴɢ ᴛʜᴇ sᴛɪᴄᴋᴇʀ (ᴀᴛ {temp_file_path}); {e}"
                 )
-            sticker = await create_sticker(
-                await upload_document(client, temp_file_path, message.chat.id),
-                sticker_emoji,
-            )
-            if os.path.isfile(temp_file_path):
-                os.remove(temp_file_path)
-        else:
-            return await msg.edit("ɴᴏᴘᴇ, ᴄᴀɴ'ᴛ ᴋᴀɴɢ ᴛʜᴀᴛ.")
-    except ShortnameOccupyFailed:
-        await message.reply_text("ᴄʜᴀɴɢᴇ ʏᴏᴜʀ ɴᴀᴍᴇ ᴏʀ ᴜsᴇʀɴᴀᴍᴇ.")
-        return
+            sticker_doc = await upload_document(client, temp_file_path, message.chat.id)
 
-    except Exception as e:
-        await message.reply_text(str(e))
-        e = format_exc()
-        return print(e)
-#-------
-    packnum = 0
-    packname = f"f{message.from_user.id}_by_{bot_username}"
-    limit = 0
-    try:
-        while True:
-            # Prevent infinite rules
-            if limit >= 50:
-                return await msg.delete()
+        sticker = await create_sticker(sticker_doc, sticker_emoji)
 
+        packnum = 0
+        packname = f"f{message.from_user.id}_by_{bot_username}"
+        retry = 0
+        while retry < 50:
             stickerset = await get_sticker_set_by_name(client, packname)
             if not stickerset:
-                stickerset = await create_sticker_set(
+                await create_sticker_set(
                     client,
                     message.from_user.id,
                     f"{message.from_user.first_name[:32]}'s kang pack by @{bot_username}",
                     packname,
                     [sticker],
                 )
+                break
             elif stickerset.set.count >= MAX_STICKERS:
                 packnum += 1
                 packname = f"f{packnum}_{message.from_user.id}_by_{bot_username}"
-                limit += 1
+                retry += 1
                 continue
             else:
-                try:
-                    await add_sticker_to_set(client, stickerset, sticker)
-                except StickerEmojiInvalid:
-                    return await msg.edit("[ERROR]: INVALID_EMOJI_IN_ARGUMENT")
-            limit += 1
-            break
+                await add_sticker_to_set(client, stickerset, sticker)
+                break
+        else:
+            await msg.edit("Failed to kang sticker after 50 attempts. Please contact support.")
+            return
 
         await msg.edit(
-            "Sticker Kanged.\nEmoji: {}".format(sticker_emoji),
+            f"Sticker Kanged.\nEmoji: {sticker_emoji}",
             reply_markup=InlineKeyboardMarkup(
                 [[InlineKeyboardButton(text="View Pack", url=f"https://t.me/addstickers/{packname}")]]
             )
@@ -179,9 +160,18 @@ async def kang(client, message: Message):
             "ʏᴏᴜ ɴᴇᴇᴅ ᴛᴏ sᴛᴀʀᴛ ᴀ ᴘʀɪᴠᴀᴛᴇ ᴄʜᴀᴛ ᴡɪᴛʜ ᴍᴇ.",
             reply_markup=keyboard,
         )
-    except StickerPngNopng:
-        await message.reply_text(
-            "sᴛɪᴄᴋᴇʀs ᴍᴜsᴛ ʙᴇ ᴘɴɢ ғɪʟᴇs ʙᴜᴛ ᴛʜᴇ ᴘʀᴏᴠɪᴅᴇᴅ ɪᴍᴀɢᴇ ᴡᴀs ɴᴏᴛ ᴀ ᴘɴɢ"
-        )
-    except StickerPngDimensions:
-        await message.reply_text("ᴛʜᴇ sᴛɪᴄᴋᴇʀ ᴘɴɢ ᴅɪᴍᴇɴsɪᴏɴs ᴀʀᴇ ɪɴᴠᴀʟɪᴅ.")
+    except (StickerPngNopng, StickerPngDimensions):
+        await msg.edit("The sticker's dimensions are invalid. It must be a 512x512 PNG.")
+    except StickerEmojiInvalid:
+        await msg.edit(f"The emoji '{sticker_emoji}' is invalid.")
+    except ShortnameOccupyFailed:
+        await msg.edit(f"The pack name `{packname}` is already occupied by someone else.")
+    except OSError:
+        await msg.edit("Image processing failed, the file might be corrupt or unsupported.")
+    except Exception as e:
+        await msg.edit("An unexpected error occurred. Please try again later.")
+        # Re-raise for the decorator to log it
+        raise e
+    finally:
+        if temp_file_path and os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
