@@ -39,13 +39,14 @@ async def resize_file_to_sticker_size(file_path: str) -> str:
         im = im.resize(sizenew)
     else:
         im.thumbnail(STICKER_DIMENSIONS)
-    try:
-        os.remove(file_path)
-        file_path = f"{file_path}.png"
-        return file_path
-    finally:
-        im.save(file_path)
 
+    new_file_path = f"{os.path.splitext(file_path)[0]}.png"
+    im.save(new_file_path, "PNG")
+
+    if file_path != new_file_path:
+        os.remove(file_path)
+
+    return new_file_path
 
 async def upload_document(
     client: Client, file_path: str, chat_id: int
