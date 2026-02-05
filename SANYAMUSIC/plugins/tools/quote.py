@@ -1,10 +1,14 @@
-
 from io import BytesIO
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from SANYAMUSIC import app
 from httpx import AsyncClient, Timeout
+
+# ------------------------- CONFIGURATION -------------------------
+# Replace this with your actual Log Group ID (usually starts with -100)
+LOG_GROUP_ID = -100123456789 
 # -----------------------------------------------------------------
+
 fetch = AsyncClient(
     http2=True,
     verify=False,
@@ -14,10 +18,10 @@ fetch = AsyncClient(
     },
     timeout=Timeout(20),
 )
-# ------------------------------------------------------------------------
+
 class QuotlyException(Exception):
     pass
-# --------------------------------------------------------------------------
+
 async def get_message_sender_id(ctx: Message):
     if ctx.forward_date:
         if ctx.forward_sender_name:
@@ -34,7 +38,7 @@ async def get_message_sender_id(ctx: Message):
         return ctx.sender_chat.id
     else:
         return 1
-# -----------------------------------------------------------------------------------------
+
 async def get_message_sender_name(ctx: Message):
     if ctx.forward_date:
         if ctx.forward_sender_name:
@@ -45,7 +49,6 @@ async def get_message_sender_name(ctx: Message):
                 if ctx.forward_from.last_name
                 else ctx.forward_from.first_name
             )
-# ---------------------------------------------------------------------------------------------------
         elif ctx.forward_from_chat:
             return ctx.forward_from_chat.title
         else:
@@ -59,7 +62,7 @@ async def get_message_sender_name(ctx: Message):
         return ctx.sender_chat.title
     else:
         return ""
-# ---------------------------------------------------------------------------------------------------
+
 async def get_custom_emoji(ctx: Message):
     if ctx.forward_date:
         return (
@@ -70,10 +73,8 @@ async def get_custom_emoji(ctx: Message):
             or not ctx.forward_from
             else ctx.forward_from.emoji_status.custom_emoji_id
         )
-
     return ctx.from_user.emoji_status.custom_emoji_id if ctx.from_user else ""
 
-# ---------------------------------------------------------------------------------------------------
 async def get_message_sender_username(ctx: Message):
     if ctx.forward_date:
         if (
@@ -104,7 +105,7 @@ async def get_message_sender_username(ctx: Message):
         return ""
     else:
         return ctx.sender_chat.username
-# ------------------------------------------------------------------------
+
 async def get_message_sender_photo(ctx: Message):
     if ctx.forward_date:
         if (
@@ -138,7 +139,6 @@ async def get_message_sender_photo(ctx: Message):
                 if ctx.forward_from.photo
                 else ""
             )
-# ---------------------------------------------------------------------------------
     elif ctx.from_user and ctx.from_user.photo:
         return {
             "small_file_id": ctx.from_user.photo.small_file_id,
@@ -160,7 +160,7 @@ async def get_message_sender_photo(ctx: Message):
             "big_file_id": ctx.sender_chat.photo.big_file_id,
             "big_photo_unique_id": ctx.sender_chat.photo.big_photo_unique_id,
         }
-# ---------------------------------------------------------------------------------------------------
+
 async def get_text_or_caption(ctx: Message):
     if ctx.text:
         return ctx.text
@@ -168,7 +168,7 @@ async def get_text_or_caption(ctx: Message):
         return ctx.caption
     else:
         return ""
-# ---------------------------------------------------------------------------------------------------
+
 async def pyrogram_to_quotly(messages, is_reply):
     if not isinstance(messages, list):
         messages = [messages]
@@ -178,7 +178,7 @@ async def pyrogram_to_quotly(messages, is_reply):
         "backgroundColor": "#1b1429",
         "messages": [],
     }
-# ------------------------------------------------------------------------------------------------------------
+
     for message in messages:
         the_message_dict_to_append = {}
         if message.entities:
@@ -201,21 +201,17 @@ async def pyrogram_to_quotly(messages, is_reply):
             ]
         else:
             the_message_dict_to_append["entities"] = []
+            
         the_message_dict_to_append["chatId"] = await get_message_sender_id(message)
         the_message_dict_to_append["text"] = await get_text_or_caption(message)
         the_message_dict_to_append["avatar"] = True
         the_message_dict_to_append["from"] = {}
         the_message_dict_to_append["from"]["id"] = await get_message_sender_id(message)
-        the_message_dict_to_append["from"]["name"] = await get_message_sender_name(
-            message
-        )
-        the_message_dict_to_append["from"][
-            "username"
-        ] = await get_message_sender_username(message)
+        the_message_dict_to_append["from"]["name"] = await get_message_sender_name(message)
+        the_message_dict_to_append["from"]["username"] = await get_message_sender_username(message)
         the_message_dict_to_append["from"]["type"] = message.chat.type.name.lower()
-        the_message_dict_to_append["from"]["photo"] = await get_message_sender_photo(
-            message
-        )
+        the_message_dict_to_append["from"]["photo"] = await get_message_sender_photo(message)
+        
         if message.reply_to_message and is_reply:
             the_message_dict_to_append["replyMessage"] = {
                 "name": await get_message_sender_name(message.reply_to_message),
@@ -225,36 +221,41 @@ async def pyrogram_to_quotly(messages, is_reply):
         else:
             the_message_dict_to_append["replyMessage"] = {}
         payload["messages"].append(the_message_dict_to_append)
-    r = await fetch.post("https://bot.lyo.su/quote/generate.png", json=payload)
-    if not r.is_error:
-        return r.read()
-    else:
-        raise QuotlyException(r.json())
-# ------------------------------------------------------------------------------------------
+
+    try:
+        r = await fetch.post("https://bot.lyo.su/quote/generate.png", json=payload)
+        if not r.is_error:
+            return r.read()
+        else:
+            # Handling specific Cloudflare/SSL issues often returns HTML, not JSON
+            try:
+                err_msg = r.json()["error"]["message"]
+            except:
+                err_msg = f"API Service Error (HTTP {r.status_code})"
+            raise QuotlyException(err_msg)
+    except Exception as e:
+        raise QuotlyException(str(e))
 
 def isArgInt(txt) -> list:
-    count = txt
     try:
-        count = int(count)
+        count = int(txt)
         return [True, count]
     except ValueError:
         return [False, 0]
 
-# ---------------------------------------------------------------------------------------------------
 @app.on_message(filters.command(["q", "r"]) & filters.reply)
 async def msg_quotly_cmd(self: app, ctx: Message):
-    is_reply = False
-    if ctx.command[0].endswith("r"):
-        is_reply = True
-    if len(ctx.text.split()) > 1:
-        check_arg = isArgInt(ctx.command[1])
-        if check_arg[0]:
-            if check_arg[1] < 2 or check_arg[1] > 10:
-                return await ctx.reply_msg("Invalid range", del_in=6)
-            try:
+    is_reply = ctx.command[0].endswith("r")
+    
+    try:
+        if len(ctx.text.split()) > 1:
+            check_arg = isArgInt(ctx.command[1])
+            if check_arg[0]:
+                if check_arg[1] < 2 or check_arg[1] > 10:
+                    return await ctx.reply_text("Invalid range (Use 2-10)")
+                
                 messages = [
-                    i
-                    for i in await self.get_messages(
+                    i for i in await self.get_messages(
                         chat_id=ctx.chat.id,
                         message_ids=range(
                             ctx.reply_to_message.id,
@@ -264,28 +265,31 @@ async def msg_quotly_cmd(self: app, ctx: Message):
                     )
                     if not i.empty and not i.media
                 ]
-            except Exception:
-                return await ctx.reply_text("🤷🏻‍♂️")
-            try:
-                make_quotly = await pyrogram_to_quotly(messages, is_reply=is_reply)
-                bio_sticker = BytesIO(make_quotly)
-                bio_sticker.name = "misskatyquote_sticker.webp"
-                return await ctx.reply_sticker(bio_sticker)
-            except Exception:
-                return await ctx.reply_msg("🤷🏻‍♂️")
-    try:
-        messages_one = await self.get_messages(
-            chat_id=ctx.chat.id, message_ids=ctx.reply_to_message.id, replies=-1
-        )
-        messages = [messages_one]
-    except Exception:
-        return await ctx.reply_msg("🤷🏻‍♂️")
-    try:
+            else:
+                messages = [await self.get_messages(ctx.chat.id, ctx.reply_to_message.id)]
+        else:
+            messages = [await self.get_messages(ctx.chat.id, ctx.reply_to_message.id)]
+
+        if not messages:
+            return await ctx.reply_text("No valid messages found to quote.")
+
         make_quotly = await pyrogram_to_quotly(messages, is_reply=is_reply)
         bio_sticker = BytesIO(make_quotly)
-        bio_sticker.name = "misskatyquote_sticker.webp"
+        bio_sticker.name = "quote_sticker.webp"
         return await ctx.reply_sticker(bio_sticker)
-    except Exception as e:
-        return await ctx.reply_msg(f"ERROR: {e}")
-# ---------------------------------------------------------------------------------
 
+    except Exception as e:
+        # 1. Send detailed log to the Log Group
+        log_text = (
+            f"<b>❌ Quotly Error Log</b>\n\n"
+            f"<b>Chat:</b> {ctx.chat.title} [<code>{ctx.chat.id}</code>]\n"
+            f"<b>User:</b> {ctx.from_user.mention if ctx.from_user else 'Unknown'}\n"
+            f"<b>Error Detail:</b> <code>{str(e)}</code>"
+        )
+        try:
+            await self.send_message(LOG_GROUP_ID, log_text)
+        except Exception as log_err:
+            print(f"Failed to send log: {log_err}")
+
+        # 2. Reply to user in the group with a clean, simple message
+        return await ctx.reply_text("This feature is currently unavailable due to API issues. Please try again later.")
