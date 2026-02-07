@@ -38,16 +38,16 @@ HEROKU_API_KEY = getenv("HEROKU_API_KEY")
 DEEP_API = getenv("DEEP_API")
 
 # Git
-UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/urstark/sanyamusic")
+UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/StarkFRG/sanyamusic")
 UPSTREAM_BRANCH = getenv("UPSTREAM_BRANCH", "main")
 GIT_TOKEN = getenv("GIT_TOKEN", None)
 
 # Support
-SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/SanyaxBots")
+SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/LuxeKernel")
 SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/SanyaxSupport")
 
 # Mini App
-MINI_APP_URL = getenv("MINI_APP_URL", "https://chorusx.vercel.app")
+MINI_APP_URL = getenv("MINI_APP_URL", "https://sanyamusic.vercel.app")
 
 # Assistant settings
 AUTO_LEAVING_ASSISTANT = getenv("AUTO_LEAVING_ASSISTANT", "True")
