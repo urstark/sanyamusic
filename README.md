@@ -229,7 +229,7 @@ nano .env
 - `MONGO_DB_URI` - MongoDB Atlas connection string
 - `OWNER_ID` - Your Telegram user ID
 - `STRING_SESSION` - Generate pyrgram session string
-- `LOG_GROUP_ID` - Log group/channel ID (starting with -100)
+- `LOGGER_ID` - Log group/channel ID (starting with -100)
 - `SUPPORT_GROUP` - Your support group link
 - `SUPPORT_CHANNEL` - Your support channel link
 
