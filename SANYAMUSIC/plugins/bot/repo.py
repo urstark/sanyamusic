@@ -8,10 +8,9 @@ from config import BOT_USERNAME
 # Caption Text
 start_txt = """<b>❍ ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ <u>sᴛᴀʀᴋ ʀᴇᴘᴏs</u></b>
 
-:⧽ <b>ᴇᴀsʏ ᴅᴇᴘʟᴏʏ</b> –ᴏɴᴇ ᴄʟɪᴄᴋ ʜᴇʀᴏᴋᴜ ᴅᴇᴘʟᴏʏᴍᴇɴᴛ  
-:⧽ <b>ɴᴏ ʜᴇʀᴏᴋᴜ ᴏʀ ɪᴅ ʙᴀɴ ɪssᴜᴇs</b>  
-:⧽ <b>ᴜɴʟɪᴍɪᴛᴇᴅ ᴅʏɴᴏs</b> – ʀᴜɴ 24/7 ʟᴀɢɢ-ғʀᴇᴇ  
-:⧽ <b>ғᴜʟʟʏ ғᴜɴᴄᴛɪᴏɴᴀʟ & ᴇʀʀᴏʀ-ғʀᴇᴇ</b>  
+⧽ <b>ᴇᴀsʏ ᴅᴇᴘʟᴏʏ</b> –ᴏɴᴇ ᴄʟɪᴄᴋ ʜᴇʀᴏᴋᴜ ᴅᴇᴘʟᴏʏᴍᴇɴᴛ   
+⧽ <b>ᴜɴʟɪᴍɪᴛᴇᴅ ᴅʏɴᴏs</b> – ʀᴜɴ 24/7 ʟᴀɢɢ-ғʀᴇᴇ  
+⧽ <b>ғᴜʟʟʏ ғᴜɴᴄᴛɪᴏɴᴀʟ & ᴇʀʀᴏʀ-ғʀᴇᴇ</b>  
 
 <i>ɴᴇᴇᴅ ʜᴇʟᴘ? sᴇɴᴅ sᴄʀᴇᴇɴsʜᴏᴛ ᴛᴏ ᴛʜᴇ sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ!</i>"""
 
@@ -24,9 +23,9 @@ async def repo_handler(_, msg):
             InlineKeyboardButton("sᴜᴘᴘᴏʀᴛ", url="https://t.me/SanyaXsupport"),
             InlineKeyboardButton("ᴏᴡɴᴇʀ", url="https://t.me/urstarkz"),
         ],
-        [InlineKeyboardButton("ᴜᴘᴅᴀᴛᴇs", url="https://t.me/sanyaxbots")],
+        [InlineKeyboardButton("ᴜᴘᴅᴀᴛᴇs", url="https://t.me/LuxeKernel")],
         [
-            InlineKeyboardButton("sᴀɴʏᴀ ᴍᴜsɪᴄ", url="https://github.com/urstark/sanyamusic/fork")
+            InlineKeyboardButton("sᴀɴʏᴀ ᴍᴜsɪᴄ", url="https://github.com/starkfrg/sanyamusic/fork")
          ]
     ]
 
@@ -44,7 +43,7 @@ async def repo_handler(_, msg):
 @capture_err
 async def repo(_, message):
     async with httpx.AsyncClient() as client:
-        response = await client.get("https://api.github.com/repos/urSTARK/Sanyamusic/contributors")
+        response = await client.get("https://api.github.com/repos/StarkFRG/sanyamusic/contributors")
     
     if response.status_code == 200:
         users = response.json()
@@ -54,7 +53,7 @@ async def repo(_, message):
             list_of_users += f"{count}. [{user['login']}]({user['html_url']})\n"
             count += 1
 
-        text = f"""[𝖱𝖤𝖯𝖮 𝖫𝖨𝖭𝖪](https://github.com/urSTARK/Sanyamusic) | [UPDATES](https://t.me/urstarkz)
+        text = f"""[𝖱𝖤𝖯𝖮 𝖫𝖨𝖭𝖪](https://github.com/StarkFRG/sanyamusic) | [UPDATES](https://t.me/urstarkz)
 | 𝖢𝖮𝖭𝖳𝖱𝖨𝖡𝖴𝖳𝖮𝖱𝖲 |
 ----------------
 {list_of_users}"""
