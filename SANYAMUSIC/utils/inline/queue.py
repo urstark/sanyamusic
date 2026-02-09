@@ -91,3 +91,17 @@ def aq_markup(_, chat_id):
         ],
     ]
     return buttons
+
+
+def replay_markup(_, videoid):
+    return InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton(
+                    text="⌯ ʀᴇᴘʟᴀʏ ⌯",
+                    callback_data=f"replay_song {videoid}",
+                ),
+                InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close"),
+            ]
+        ]
+    )
