@@ -22,10 +22,13 @@ from config import (
     SONG_DOWNLOAD_DURATION,
     SONG_DOWNLOAD_DURATION_LIMIT,
 )
+from SANYAMUSIC.utils.database import get_cmode
 from SANYAMUSIC.utils.decorators.language import language, languageCB
 from SANYAMUSIC.utils.errors import capture_err, capture_callback_err
 from SANYAMUSIC.utils.formatters import convert_bytes, time_to_seconds
 from SANYAMUSIC.utils.inline.song import song_markup
+
+from SANYAMUSIC.utils.stream.stream import stream
 
 SONG_COMMAND = ["song"]
 
@@ -203,3 +206,61 @@ async def song_download_cb(client, cq, lang):
                 os.remove(file_path)
             except Exception as e:
                 print(f"[SONG] cleanup failed: {e}")
+
+
+@app.on_callback_query(filters.regex(r"replay_song (.*)") & ~BANNED_USERS)
+@capture_callback_err
+@languageCB
+async def replay_song_cb(client, cq, lang):
+    videoid = cq.data.split(None, 1)[1]
+
+    await cq.answer("ʀᴇᴘʟᴀʏɪɴɢ sᴋɪᴘᴘᴇᴅ sᴏɴɢ...", show_alert=False)
+
+    chat_id_for_stream = cq.message.chat.id
+    channel = await get_cmode(chat_id_for_stream)
+    if channel:
+        chat_id_for_stream = channel
+
+    user_id = cq.from_user.id
+    user_name = cq.from_user.first_name
+
+    mystic = await cq.message.reply_text(lang["play_1"])
+
+    try:
+        details, track_id = await YouTube.track(videoid, True)
+    except Exception as e:
+        return await mystic.edit_text(lang["play_3"] + f"\n\nError: {e}")
+
+    if details.get("duration_min"):
+        duration_sec = time_to_seconds(details["duration_min"])
+        if duration_sec > SONG_DOWNLOAD_DURATION_LIMIT:
+            return await mystic.edit_text(
+                lang["play_6"].format(SONG_DOWNLOAD_DURATION, dur_min)
+            )
+
+    try:
+        await stream(
+            client,
+            lang,
+            mystic,
+            user_id,
+            details,
+            chat_id_for_stream,
+            user_name,
+            cq.message.chat.id,
+            video=None,
+            streamtype="youtube",
+            forceplay=True,  # Forcefully play the replayed song
+        )
+    except Exception as e:
+        ex_type = type(e).__name__
+        err = lang["general_2"].format(ex_type)
+        await mystic.edit_text(err)
+        return
+
+    await mystic.delete()
+    try:
+        # Delete the "Song Skipped" message with the replay button
+        await cq.message.delete()
+    except:
+        pass
