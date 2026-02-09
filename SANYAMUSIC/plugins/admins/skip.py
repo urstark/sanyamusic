@@ -7,7 +7,7 @@ from SANYAMUSIC.core.call import SANYA
 from SANYAMUSIC.misc import db
 from SANYAMUSIC.utils.database import get_loop
 from SANYAMUSIC.utils.decorators import AdminRightsCheck
-from SANYAMUSIC.utils.inline import close_markup, stream_markup
+from SANYAMUSIC.utils.inline import close_markup, replay_markup, stream_markup
 from SANYAMUSIC.utils.stream.autoclear import auto_clean
 from SANYAMUSIC.utils.thumbnails import get_thumb
 from config import BANNED_USERS
@@ -62,33 +62,28 @@ async def skip(cli, message: Message, _, chat_id):
             return await message.reply_text(_["admin_9"])
     else:
         check = db.get(chat_id)
-        popped = None
-        try:
-            popped = check.pop(0)
-            if popped:
-                await auto_clean(popped)
-            if not check:
-                await message.reply_text(
-                    text=_["admin_6"].format(
-                        message.from_user.mention, message.chat.title
-                    ),
-                    reply_markup=close_markup(_),
-                )
-                try:
-                    return await SANYA.stop_stream(chat_id)
-                except:
-                    return
-        except:
+        if not check:
+            return await message.reply_text(_["queue_2"])
+
+        popped = check.pop(0)
+        if popped:
+            await auto_clean(popped)
+
+        if not check:
+            await message.reply_text(
+                text=_["admin_6"].format(message.from_user.mention, message.chat.title),
+                reply_markup=replay_markup(_, popped.get("vidid")) if popped else close_markup(_),
+            )
             try:
-                await message.reply_text(
-                    text=_["admin_6"].format(
-                        message.from_user.mention, message.chat.title
-                    ),
-                    reply_markup=close_markup(_),
-                )
-                return await SANYA.stop_stream(chat_id)
+                await SANYA.stop_stream(chat_id)
             except:
-                return
+                pass
+            return
+
+        await message.reply_text(
+            text=_["admin_6"].format(popped.get("title", "Unknown"), message.from_user.mention),
+            reply_markup=replay_markup(_, popped.get("vidid")),
+        )
     queued = check[0]["file"]
     title = (check[0]["title"]).title()
     user = check[0]["by"]
