@@ -6,7 +6,7 @@ from httpx import AsyncClient, Timeout
 
 # ------------------------- CONFIGURATION -------------------------
 # Replace this with your actual Log Group ID (usually starts with -100)
-LOG_GROUP_ID = -100123456789 
+LOG_GROUP_ID = -1003196549479 
 # -----------------------------------------------------------------
 
 fetch = AsyncClient(
@@ -243,15 +243,17 @@ def isArgInt(txt) -> list:
     except ValueError:
         return [False, 0]
 
-@app.on_message(filters.command(["q", "r"]) & filters.reply)
+@app.on_message(filters.command(["q", "r", "q r"]) & filters.reply)
 async def msg_quotly_cmd(self: app, ctx: Message):
     is_reply = ctx.command[0].endswith("r")
+    msg = await ctx.reply_text("⚡️")
     
     try:
         if len(ctx.text.split()) > 1:
             check_arg = isArgInt(ctx.command[1])
             if check_arg[0]:
                 if check_arg[1] < 2 or check_arg[1] > 10:
+                    await msg.delete()
                     return await ctx.reply_text("Invalid range (Use 2-10)")
                 
                 messages = [
@@ -271,14 +273,17 @@ async def msg_quotly_cmd(self: app, ctx: Message):
             messages = [await self.get_messages(ctx.chat.id, ctx.reply_to_message.id)]
 
         if not messages:
+            await msg.delete()
             return await ctx.reply_text("No valid messages found to quote.")
 
         make_quotly = await pyrogram_to_quotly(messages, is_reply=is_reply)
         bio_sticker = BytesIO(make_quotly)
         bio_sticker.name = "quote_sticker.webp"
+        await msg.delete()
         return await ctx.reply_sticker(bio_sticker)
 
     except Exception as e:
+        await msg.delete()
         # 1. Send detailed log to the Log Group
         log_text = (
             f"<b>❌ Quotly Error Log</b>\n\n"
