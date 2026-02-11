@@ -121,23 +121,26 @@ async def kang(client, message: Message):
 
         sticker = await create_sticker(sticker_doc, sticker_emoji)
 
-        packnum = 0
-        packname = f"f{message.from_user.id}_by_{bot_username}"
+        packnum = 1
+        packname = f"k{message.from_user.id}_by_{bot_username}"
         retry = 0
         while retry < 50:
             stickerset = await get_sticker_set_by_name(client, packname)
             if not stickerset:
+                title = f"{message.from_user.first_name[:20]} :: @{bot_username}"
+                if packnum > 1:
+                    title += f" v{packnum}"
                 await create_sticker_set(
                     client,
                     message.from_user.id,
-                    f"{message.from_user.first_name[:32]}'s kang pack by @{bot_username}",
+                    title,
                     packname,
                     [sticker],
                 )
                 break
             elif stickerset.set.count >= MAX_STICKERS:
                 packnum += 1
-                packname = f"f{packnum}_{message.from_user.id}_by_{bot_username}"
+                packname = f"k{packnum}_{message.from_user.id}_by_{bot_username}"
                 retry += 1
                 continue
             else:
