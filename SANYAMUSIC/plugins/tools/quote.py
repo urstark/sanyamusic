@@ -3,10 +3,12 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 from SANYAMUSIC import app
 from httpx import AsyncClient, Timeout
+import base64
+from config import LOGGER_ID
 
 # ------------------------- CONFIGURATION -------------------------
-# Replace this with your actual Log Group ID (usually starts with -100)
-LOG_GROUP_ID = -1003196549479 
+# Use LOGGER_ID from config.py
+LOG_GROUP_ID = LOGGER_ID
 # -----------------------------------------------------------------
 
 fetch = AsyncClient(
@@ -63,103 +65,39 @@ async def get_message_sender_name(ctx: Message):
     else:
         return ""
 
-async def get_custom_emoji(ctx: Message):
-    if ctx.forward_date:
-        return (
-            ""
-            if ctx.forward_sender_name
-            or not ctx.forward_from
-            and ctx.forward_from_chat
-            or not ctx.forward_from
-            else ctx.forward_from.emoji_status.custom_emoji_id
-        )
-    return ctx.from_user.emoji_status.custom_emoji_id if ctx.from_user else ""
-
 async def get_message_sender_username(ctx: Message):
     if ctx.forward_date:
-        if (
-            not ctx.forward_sender_name
-            and not ctx.forward_from
-            and ctx.forward_from_chat
-            and ctx.forward_from_chat.username
-        ):
-            return ctx.forward_from_chat.username
-        elif (
-            not ctx.forward_sender_name
-            and not ctx.forward_from
-            and ctx.forward_from_chat
-            or ctx.forward_sender_name
-            or not ctx.forward_from
-        ):
-            return ""
-        else:
+        if ctx.forward_from:
             return ctx.forward_from.username or ""
-    elif ctx.from_user and ctx.from_user.username:
-        return ctx.from_user.username
-    elif (
-        ctx.from_user
-        or ctx.sender_chat
-        and not ctx.sender_chat.username
-        or not ctx.sender_chat
-    ):
+        if ctx.forward_from_chat:
+            return ctx.forward_from_chat.username or ""
         return ""
-    else:
+    if ctx.from_user:
+        return ctx.from_user.username
+    if ctx.sender_chat:
         return ctx.sender_chat.username
+    return ""
 
 async def get_message_sender_photo(ctx: Message):
+    photo = None
     if ctx.forward_date:
-        if (
-            not ctx.forward_sender_name
-            and not ctx.forward_from
-            and ctx.forward_from_chat
-            and ctx.forward_from_chat.photo
-        ):
-            return {
-                "small_file_id": ctx.forward_from_chat.photo.small_file_id,
-                "small_photo_unique_id": ctx.forward_from_chat.photo.small_photo_unique_id,
-                "big_file_id": ctx.forward_from_chat.photo.big_file_id,
-                "big_photo_unique_id": ctx.forward_from_chat.photo.big_photo_unique_id,
-            }
-        elif (
-            not ctx.forward_sender_name
-            and not ctx.forward_from
-            and ctx.forward_from_chat
-            or ctx.forward_sender_name
-            or not ctx.forward_from
-        ):
-            return ""
-        else:
-            return (
-                {
-                    "small_file_id": ctx.forward_from.photo.small_file_id,
-                    "small_photo_unique_id": ctx.forward_from.photo.small_photo_unique_id,
-                    "big_file_id": ctx.forward_from.photo.big_file_id,
-                    "big_photo_unique_id": ctx.forward_from.photo.big_photo_unique_id,
-                }
-                if ctx.forward_from.photo
-                else ""
-            )
+        if ctx.forward_from and ctx.forward_from.photo:
+            photo = ctx.forward_from.photo
+        elif ctx.forward_from_chat and ctx.forward_from_chat.photo:
+            photo = ctx.forward_from_chat.photo
     elif ctx.from_user and ctx.from_user.photo:
+        photo = ctx.from_user.photo
+    elif ctx.sender_chat and ctx.sender_chat.photo:
+        photo = ctx.sender_chat.photo
+
+    if photo:
         return {
-            "small_file_id": ctx.from_user.photo.small_file_id,
-            "small_photo_unique_id": ctx.from_user.photo.small_photo_unique_id,
-            "big_file_id": ctx.from_user.photo.big_file_id,
-            "big_photo_unique_id": ctx.from_user.photo.big_photo_unique_id,
+            "small_file_id": photo.small_file_id,
+            "small_photo_unique_id": photo.small_photo_unique_id,
+            "big_file_id": photo.big_file_id,
+            "big_photo_unique_id": photo.big_photo_unique_id,
         }
-    elif (
-        ctx.from_user
-        or ctx.sender_chat
-        and not ctx.sender_chat.photo
-        or not ctx.sender_chat
-    ):
-        return ""
-    else:
-        return {
-            "small_file_id": ctx.sender_chat.photo.small_file_id,
-            "small_photo_unique_id": ctx.sender_chat.photo.small_photo_unique_id,
-            "big_file_id": ctx.sender_chat.photo.big_file_id,
-            "big_photo_unique_id": ctx.sender_chat.photo.big_photo_unique_id,
-        }
+    return ""
 
 async def get_text_or_caption(ctx: Message):
     if ctx.text:
@@ -188,7 +126,7 @@ async def pyrogram_to_quotly(messages, is_reply):
                     "offset": entity.offset,
                     "length": entity.length,
                 }
-                for entity in message.entities
+                for entity in message.entities if entity.type
             ]
         elif message.caption_entities:
             the_message_dict_to_append["entities"] = [
@@ -197,7 +135,7 @@ async def pyrogram_to_quotly(messages, is_reply):
                     "offset": entity.offset,
                     "length": entity.length,
                 }
-                for entity in message.caption_entities
+                for entity in message.caption_entities if entity.type
             ]
         else:
             the_message_dict_to_append["entities"] = []
@@ -209,7 +147,7 @@ async def pyrogram_to_quotly(messages, is_reply):
         the_message_dict_to_append["from"]["id"] = await get_message_sender_id(message)
         the_message_dict_to_append["from"]["name"] = await get_message_sender_name(message)
         the_message_dict_to_append["from"]["username"] = await get_message_sender_username(message)
-        the_message_dict_to_append["from"]["type"] = message.chat.type.name.lower()
+        the_message_dict_to_append["from"]["type"] = message.chat.type.name.lower() if message.chat and message.chat.type else "private"
         the_message_dict_to_append["from"]["photo"] = await get_message_sender_photo(message)
         
         if message.reply_to_message and is_reply:
@@ -223,9 +161,16 @@ async def pyrogram_to_quotly(messages, is_reply):
         payload["messages"].append(the_message_dict_to_append)
 
     try:
-        r = await fetch.post("https://bot.lyo.su/quote/generate.png", json=payload)
+        r = await fetch.post("https://bot.lyo.su/quote/generate", json=payload)
         if not r.is_error:
-            return r.read()
+            res = r.json()
+            if res.get("ok") and res.get("result", {}).get("image"):
+                image_data = base64.b64decode(res["result"]["image"].encode("utf-8"))
+                return image_data
+            else:
+                raise QuotlyException(
+                    res.get("error", {}).get("message", "Unknown API error")
+                )
         else:
             # Handling specific Cloudflare/SSL issues often returns HTML, not JSON
             try:
@@ -252,25 +197,20 @@ async def msg_quotly_cmd(self: app, ctx: Message):
         if len(ctx.text.split()) > 1:
             check_arg = isArgInt(ctx.command[1])
             if check_arg[0]:
-                if check_arg[1] < 2 or check_arg[1] > 10:
+                count = check_arg[1]
+                if not (2 <= count <= 10):
                     await msg.delete()
                     return await ctx.reply_text("Invalid range (Use 2-10)")
                 
-                messages = [
-                    i for i in await self.get_messages(
-                        chat_id=ctx.chat.id,
-                        message_ids=range(
-                            ctx.reply_to_message.id,
-                            ctx.reply_to_message.id + (check_arg[1] + 5),
-                        ),
-                        replies=-1,
-                    )
-                    if not i.empty and not i.media
-                ]
+                # Fetch multiple messages. Note: This assumes message IDs are sequential.
+                message_ids = list(range(ctx.reply_to_message.id, ctx.reply_to_message.id + count))
+                fetched_messages = await self.get_messages(ctx.chat.id, message_ids, replies=0)
+                # Filter out any messages that were not found
+                messages = [m for m in fetched_messages if m and not m.empty]
             else:
-                messages = [await self.get_messages(ctx.chat.id, ctx.reply_to_message.id)]
+                messages = [ctx.reply_to_message]
         else:
-            messages = [await self.get_messages(ctx.chat.id, ctx.reply_to_message.id)]
+            messages = [ctx.reply_to_message]
 
         if not messages:
             await msg.delete()
