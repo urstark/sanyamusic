@@ -10,8 +10,10 @@ load_dotenv()
 API_ID = int(getenv("API_ID"))
 API_HASH = getenv("API_HASH")
 BOT_TOKEN = getenv("BOT_TOKEN")
-GROQ_API_KEY = getenv("GROQ_API_KEY")
-GROQ_MODEL = getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+GROQ_API_KEY = getenv("GROQ_API_KEY", None)
+GROQ_MODEL = getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+GROQ_FALLBACK_MODEL = getenv("GROQ_FALLBACK_MODEL", "llama-3.1-8b-instant")
+GROQ_WHISPER_MODEL = getenv("GROQ_WHISPER_MODEL", "whisper-large-v3-turbo")
 
 COMMAND_PREFIXES = list(getenv("COMMAND_PREFIXES", "/ ! .").split())
 
