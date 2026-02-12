@@ -1,8 +1,13 @@
 import random
+import os
 import httpx
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from pyrogram.errors import StickersetInvalid
 from pyrogram.enums import ChatAction, ChatType, ChatMemberStatus
+from pyrogram.raw import functions, types
+from pyrogram.file_id import FileId, FileType
+
 
 from SANYAMUSIC import app
 from SANYAMUSIC.mongo.chatbot_db import (
@@ -14,17 +19,21 @@ from SANYAMUSIC.mongo.chatbot_db import (
     reset_user_history,
 )
 
-from config import GROQ_API_KEY, BOT_NAME, OWNER_ID, GROQ_MODEL
+from config import GROQ_API_KEY, BOT_NAME, OWNER_ID, GROQ_MODEL, GROQ_FALLBACK_MODEL, GROQ_WHISPER_MODEL
 
 # --- Settings ---
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_AUDIO_URL = "https://api.groq.com/openai/v1/audio/transcriptions"
 MODEL = GROQ_MODEL
+FALLBACK_MODEL = GROQ_FALLBACK_MODEL
 MAX_HISTORY_DM = 12
 MAX_HISTORY_GROUP = 12
 MAX_STORAGE_CHATS = 15
 OWNER_LINK = f"tg://user?id={OWNER_ID}" if OWNER_ID else "https://t.me/urstarkz"
 
 # --- Cute Sticker Packs ---
+# To add a pack, copy its "short name" (from the share link or using /getpackname)
+# and add it to this list.
 STICKER_PACKS = [
     "RandomByDarkzenitsu",
     "Babiess01",
@@ -36,7 +45,7 @@ STICKER_PACKS = [
     "Quby741",
     "Animalsasthegtjtky_by_fStikBot",
     "a6962237343_by_Marin_Roxbot",
-    "Stickers_by_Sticker_Maker_for_Telegram_25",
+    "urstarkz",
 ]
 
 # --- Loop Prevention Responses ---
@@ -53,13 +62,15 @@ FALLBACK_RESPONSES = [
     "Achha theek hai baba",
 ]
 
-# --- Helper: Send Random Sticker ---
-async def send_ai_sticker(message: Message):
+# --- Helper: Send Random Sticker (NO AI USED) ---
+# This function picks a random sticker from the list above. It does NOT use AI.
+async def send_random_sticker(client: Client, message: Message):
     """Tries to send a random sticker from configured packs."""
     max_attempts = 5
     tried_packs = set()
 
     for _ in range(max_attempts):
+        pack_name = None
         try:
             available_packs = [p for p in STICKER_PACKS if p not in tried_packs]
             if not available_packs:
@@ -68,12 +79,38 @@ async def send_ai_sticker(message: Message):
             pack_name = random.choice(available_packs)
             tried_packs.add(pack_name)
 
-            sticker_set = await app.get_sticker_set(pack_name)
-            if sticker_set and sticker_set.stickers:
-                sticker = random.choice(sticker_set.stickers)
-                await message.reply_sticker(sticker.file_id)
+            # Using low-level invoke to bypass high-level object issues
+            sticker_set_result = await client.invoke(
+                functions.messages.GetStickerSet(
+                    stickerset=types.InputStickerSetShortName(short_name=pack_name),
+                    hash=0  # Force refetch
+                )
+            )
+
+            if hasattr(sticker_set_result, "documents") and sticker_set_result.documents:
+                sticker_document = random.choice(sticker_set_result.documents)
+
+                # Manually construct a file_id string from the raw document
+                file_id_str = FileId(
+                    file_type=FileType.STICKER,
+                    dc_id=sticker_document.dc_id,
+                    media_id=sticker_document.id,
+                    access_hash=sticker_document.access_hash,
+                    file_reference=sticker_document.file_reference,
+                ).encode()
+
+                await message.reply_sticker(file_id_str)
                 return True
-        except Exception:
+            else:
+                print(f"[DEBUG] Pack '{pack_name}' loaded via invoke but has no 'documents'.")
+
+        except StickersetInvalid:
+            print(f"[DEBUG] Sticker pack '{pack_name}' is invalid.")
+        except Exception as e:
+            if pack_name:
+                print(f"[DEBUG] Failed to load sticker pack '{pack_name}': {e}")
+            else:
+                print(f"[DEBUG] An error occurred before a pack was chosen: {e}")
             continue
 
     return False
@@ -143,6 +180,8 @@ async def get_ai_response(
     max_history = MAX_HISTORY_DM if chat_type == ChatType.PRIVATE else MAX_HISTORY_GROUP
     history = await get_user_history(user_id)
 
+    print(f"\n[DEBUG] User ({user_name} | {user_id}): {user_input}")
+
     system_prompt = (
         f"You are {BOT_NAME}, a 17-year-old girl from Delhi. "
         f"User's Name: {user_name}\n"
@@ -182,16 +221,26 @@ async def get_ai_response(
     try:
         async with httpx.AsyncClient(timeout=15) as client:
             resp = await client.post(GROQ_URL, json=payload, headers=headers)
+            
+            # --- Fallback Logic ---
+            # If the main model fails (Rate Limit 429 or Server Error 5xx), try the fallback model
+            if resp.status_code in [429, 500, 503]:
+                print(f"[DEBUG] Switching to fallback model due to error: {resp.status_code}")
+                payload["model"] = FALLBACK_MODEL
+                print(f"[DEBUG] Using Fallback Model: {FALLBACK_MODEL}")
+                resp = await client.post(GROQ_URL, json=payload, headers=headers)
+
             if resp.status_code != 200:
                 if resp.status_code == 401:
                     return "⚠️ Iɴᴠᴀʟɪᴅ API Kᴇʏ."
                 elif resp.status_code == 429:
-                    return "⚠️ Rᴀᴛᴇ Lɪᴍɪᴛ Hɪᴛ."
+                    return "⚠️ Mᴇʀɪ ʙᴀᴛᴛᴇʀʏ ʟᴏᴡ ʜᴀɪ... (Rate Limit Hit)"
                 elif "model_not_found" in resp.text:
                     return f"⚠️ Tʜᴇ ᴍᴏᴅᴇʟ `{MODEL}` ᴡᴀs ɴᴏᴛ ғᴏᴜɴᴅ. Cʜᴇᴄᴋ ʏᴏᴜʀ `GROQ_MODEL` ɪɴ `.env`."
                 return f"Mᴏᴏᴅ ɴᴀʜɪ ʜᴀɪ ʏᴀᴀʀ... (API Eʀʀᴏʀ: {resp.status_code})"
 
             reply = resp.json()["choices"][0]["message"]["content"].strip()
+            print(f"[DEBUG] Bot Response: {reply}")
 
             # --- Loop Prevention ---
             user_input_lower = user_input.lower().strip()
@@ -233,6 +282,32 @@ async def get_ai_response(
     except Exception as e:
         return "Nᴇᴛ sʟᴏᴡ ʜᴀɪ ʏᴀᴀʀ... 😅"
 
+# --- Voice Transcription ---
+async def transcribe_audio(file_path: str):
+    if not GROQ_API_KEY:
+        return None
+    
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+    }
+    
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            with open(file_path, "rb") as f:
+                files = {
+                    "file": (os.path.basename(file_path), f, "audio/ogg"),
+                    "model": (None, GROQ_WHISPER_MODEL),
+                }
+                resp = await client.post(GROQ_AUDIO_URL, headers=headers, files=files)
+            
+            if resp.status_code == 200:
+                return resp.json().get("text", "")
+            else:
+                print(f"[DEBUG] Whisper Error: {resp.text}")
+                return None
+    except Exception as e:
+        print(f"[DEBUG] Transcription Exception: {e}")
+        return None
 
 # --- Message Handler ---
 @app.on_message(
@@ -242,7 +317,7 @@ async def get_ai_response(
     group=6,
 )
 async def ai_message_handler(client: Client, message: Message):
-    if not message.text:
+    if not message.text or not message.from_user:
         return
 
     # Check if chatbot is enabled (works for both group and private)
@@ -255,10 +330,10 @@ async def ai_message_handler(client: Client, message: Message):
     # 2. Determine if the bot should reply
     if message.chat.type == ChatType.PRIVATE:
         should_reply = True
-    elif message.reply_to_message and message.reply_to_message.from_user.id == app.id:
+    elif message.reply_to_message and message.reply_to_message.from_user and message.reply_to_message.from_user.id == client.me.id:
         should_reply = True
     else:
-        bot_username = app.username.lower()
+        bot_username = client.me.username.lower()
         if f"@{bot_username}" in text.lower():
             should_reply = True
             # Remove all mentions of the bot
@@ -281,13 +356,54 @@ async def ai_message_handler(client: Client, message: Message):
 
         # Send a sticker occasionally (30% chance)
         if random.random() < 0.35:
-            await send_ai_sticker(message)
+            await send_random_sticker(client, message)
 
+# --- Voice Handler ---
+@app.on_message(
+    filters.voice
+    & ~filters.via_bot,
+    group=8,
+)
+async def ai_voice_handler(client: Client, message: Message):
+    # Check if chatbot is enabled
+    if not await is_chatbot_on(message.chat.id):
+        return
+
+    if not message.from_user:
+        return
+
+    # Only reply to voice notes in Private, or if replied to bot in Group
+    should_reply = False
+    if message.chat.type == ChatType.PRIVATE:
+        should_reply = True
+    elif message.reply_to_message and message.reply_to_message.from_user and message.reply_to_message.from_user.id == client.me.id:
+        should_reply = True
+    
+    if should_reply:
+        await client.send_chat_action(message.chat.id, ChatAction.RECORD_AUDIO)
+        
+        # Download the voice note
+        file_path = await client.download_media(message)
+        
+        # Transcribe
+        text = await transcribe_audio(file_path)
+        
+        # Cleanup file
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            
+        if text:
+            # Send transcribed text to AI for response
+            response = await get_ai_response(message.from_user.id, text, message.from_user.first_name, message.chat.type)
+            await message.reply_text(response)
 
 # --- Sticker Handler ---
 @app.on_message(filters.sticker, group=7)
 async def ai_sticker_handler(client: Client, message: Message):
     if not message.sticker:
+        return
+
+    if not message.from_user:
         return
 
     if not await is_chatbot_on(message.chat.id):
@@ -296,11 +412,12 @@ async def ai_sticker_handler(client: Client, message: Message):
     should_reply = False
     if message.chat.type == ChatType.PRIVATE:
         should_reply = True
-    elif message.reply_to_message and message.reply_to_message.from_user.id == app.id:
+    elif message.reply_to_message and message.reply_to_message.from_user and message.reply_to_message.from_user.id == client.me.id:
         should_reply = True
 
     if should_reply:
-        if not await send_ai_sticker(message):
+        await client.send_chat_action(message.chat.id, ChatAction.CHOOSE_STICKER)
+        if not await send_random_sticker(client, message):
             # Fallback to text if sticker sending fails
             cute_responses = ["😊", "💕", "✨", "(⁠≧⁠▽⁠≦⁠)", "Cᴜᴛᴇ sᴛɪᴄᴋᴇʀ! 💖"]
             await message.reply_text(random.choice(cute_responses))
@@ -321,6 +438,15 @@ async def ask_ai_command(client: Client, message: Message):
         message.from_user.id, text, message.from_user.first_name, message.chat.type
     )
     await message.reply_text(response)
+
+
+@app.on_message(filters.command("getpackname"))
+async def get_pack_name_handler(client: Client, message: Message):
+    if message.reply_to_message and message.reply_to_message.sticker:
+        pack_name = message.reply_to_message.sticker.set_name
+        await message.reply_text(f"📂 **Pack Name:** `{pack_name}`\n\nCopy this and add it to `STICKER_PACKS` in `Gpt.py`.")
+    else:
+        await message.reply_text("⚠️ Reply to a sticker to get its pack name.")
 
 
 __MODULE__ = "AI ChatBot"
