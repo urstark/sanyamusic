@@ -65,7 +65,7 @@ FALLBACK_RESPONSES = [
 # This function picks a random sticker from the list above. It does NOT use AI.
 async def send_random_sticker(client: Client, message: Message):
     """Tries to send a random sticker from configured packs."""
-    max_attempts = 5
+    max_attempts = 10
     tried_packs = set()
 
     for _ in range(max_attempts):
@@ -96,13 +96,12 @@ async def send_random_sticker(client: Client, message: Message):
                     file_reference=sticker_document.file_reference,
                 )
 
-                # Send using low-level invoke to bypass FileId construction issues
                 await client.invoke(
                     functions.messages.SendMedia(
                         peer=await client.resolve_peer(message.chat.id),
                         media=types.InputMediaDocument(id=input_document),
                         message="",
-                        random_id=random.randint(0, 2**63 - 1),
+                        random_id=client.rnd_id(),
                         reply_to=types.InputReplyToMessage(reply_to_msg_id=message.id)
                     )
                 )
