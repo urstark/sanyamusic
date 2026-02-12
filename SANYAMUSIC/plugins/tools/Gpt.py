@@ -1,12 +1,10 @@
 import random
-import os
 import httpx
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from pyrogram.errors import StickersetInvalid
 from pyrogram.enums import ChatAction, ChatType, ChatMemberStatus
 from pyrogram.raw import functions, types
-from pyrogram.file_id import FileId, FileType
 
 
 from SANYAMUSIC import app
@@ -29,7 +27,8 @@ FALLBACK_MODEL = GROQ_FALLBACK_MODEL
 MAX_HISTORY_DM = 12
 MAX_HISTORY_GROUP = 12
 MAX_STORAGE_CHATS = 15
-OWNER_LINK = f"tg://user?id={OWNER_ID}" if OWNER_ID else "https://t.me/urstarkz"
+OWNER_NAME = "Stark"
+OWNER_LINK = "https://t.me/urstarkz"
 
 # --- Cute Sticker Packs ---
 # To add a pack, copy its "short name" (from the share link or using /getpackname)
@@ -90,27 +89,29 @@ async def send_random_sticker(client: Client, message: Message):
             if hasattr(sticker_set_result, "documents") and sticker_set_result.documents:
                 sticker_document = random.choice(sticker_set_result.documents)
 
-                # Manually construct a file_id string from the raw document
-                file_id_str = FileId(
-                    file_type=FileType.STICKER,
-                    dc_id=sticker_document.dc_id,
-                    media_id=sticker_document.id,
+                # Construct InputDocument
+                input_document = types.InputDocument(
+                    id=sticker_document.id,
                     access_hash=sticker_document.access_hash,
                     file_reference=sticker_document.file_reference,
-                ).encode()
+                )
 
-                await message.reply_sticker(file_id_str)
+                # Send using low-level invoke to bypass FileId construction issues
+                await client.invoke(
+                    functions.messages.SendMedia(
+                        peer=await client.resolve_peer(message.chat.id),
+                        media=types.InputMediaDocument(id=input_document),
+                        message="",
+                        random_id=random.randint(0, 2**63 - 1),
+                        reply_to=types.InputReplyToMessage(reply_to_msg_id=message.id)
+                    )
+                )
                 return True
-            else:
-                print(f"[DEBUG] Pack '{pack_name}' loaded via invoke but has no 'documents'.")
 
         except StickersetInvalid:
-            print(f"[DEBUG] Sticker pack '{pack_name}' is invalid.")
+            pass
         except Exception as e:
-            if pack_name:
-                print(f"[DEBUG] Failed to load sticker pack '{pack_name}': {e}")
-            else:
-                print(f"[DEBUG] An error occurred before a pack was chosen: {e}")
+            pass
             continue
 
     return False
@@ -180,12 +181,11 @@ async def get_ai_response(
     max_history = MAX_HISTORY_DM if chat_type == ChatType.PRIVATE else MAX_HISTORY_GROUP
     history = await get_user_history(user_id)
 
-    print(f"\n[DEBUG] User ({user_name} | {user_id}): {user_input}")
-
     system_prompt = (
         f"You are {BOT_NAME}, a 17-year-old girl from Delhi. "
         f"User's Name: {user_name}\n"
-        f"Owner: {OWNER_LINK}\n\n"
+        f"Your owner name: {OWNER_NAME}\n"
+        f"your owner Link: {OWNER_LINK}\n\n"
         "PERSONALITY:\n"
         "- You are a dramatic, and cute girlfriend figure.\n"
         "- You speak strictly in 'Hinglish' (Hindi written in English). Do not speak pure English.\n"
@@ -225,9 +225,7 @@ async def get_ai_response(
             # --- Fallback Logic ---
             # If the main model fails (Rate Limit 429 or Server Error 5xx), try the fallback model
             if resp.status_code in [429, 500, 503]:
-                print(f"[DEBUG] Switching to fallback model due to error: {resp.status_code}")
                 payload["model"] = FALLBACK_MODEL
-                print(f"[DEBUG] Using Fallback Model: {FALLBACK_MODEL}")
                 resp = await client.post(GROQ_URL, json=payload, headers=headers)
 
             if resp.status_code != 200:
@@ -240,7 +238,6 @@ async def get_ai_response(
                 return f"Mᴏᴏᴅ ɴᴀʜɪ ʜᴀɪ ʏᴀᴀʀ... (API Eʀʀᴏʀ: {resp.status_code})"
 
             reply = resp.json()["choices"][0]["message"]["content"].strip()
-            print(f"[DEBUG] Bot Response: {reply}")
 
             # --- Loop Prevention ---
             user_input_lower = user_input.lower().strip()
@@ -283,7 +280,7 @@ async def get_ai_response(
         return "Nᴇᴛ sʟᴏᴡ ʜᴀɪ ʏᴀᴀʀ... 😅"
 
 # --- Voice Transcription ---
-async def transcribe_audio(file_path: str):
+async def transcribe_audio(file_obj):
     if not GROQ_API_KEY:
         return None
     
@@ -293,20 +290,17 @@ async def transcribe_audio(file_path: str):
     
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            with open(file_path, "rb") as f:
-                files = {
-                    "file": (os.path.basename(file_path), f, "audio/ogg"),
-                    "model": (None, GROQ_WHISPER_MODEL),
-                }
-                resp = await client.post(GROQ_AUDIO_URL, headers=headers, files=files)
+            files = {
+                "file": ("voice.ogg", file_obj, "audio/ogg"),
+                "model": (None, GROQ_WHISPER_MODEL),
+            }
+            resp = await client.post(GROQ_AUDIO_URL, headers=headers, files=files)
             
             if resp.status_code == 200:
                 return resp.json().get("text", "")
             else:
-                print(f"[DEBUG] Whisper Error: {resp.text}")
                 return None
     except Exception as e:
-        print(f"[DEBUG] Transcription Exception: {e}")
         return None
 
 # --- Message Handler ---
@@ -383,14 +377,10 @@ async def ai_voice_handler(client: Client, message: Message):
         await client.send_chat_action(message.chat.id, ChatAction.RECORD_AUDIO)
         
         # Download the voice note
-        file_path = await client.download_media(message)
+        file_obj = await client.download_media(message, in_memory=True)
         
         # Transcribe
-        text = await transcribe_audio(file_path)
-        
-        # Cleanup file
-        if os.path.exists(file_path):
-            os.remove(file_path)
+        text = await transcribe_audio(file_obj)
             
         if text:
             # Send transcribed text to AI for response
