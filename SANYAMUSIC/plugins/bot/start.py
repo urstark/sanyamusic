@@ -5,6 +5,7 @@ import time
 from pyrogram import filters
 from pyrogram.enums import ChatType, ChatAction
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.errors import MessageNotModified
 from youtubesearchpython.__future__ import VideosSearch
 import config
 from SANYAMUSIC import app
@@ -85,13 +86,19 @@ async def start_pm(client, message: Message, _):
     await client.send_chat_action(message.chat.id, ChatAction.TYPING)
 
     # 4. Layer 2: Separate "Starting" Message
-    starting_msg = await message.reply_text("**__𝐻𝑖𝑒𝑒 𝐶𝑢𝑡𝑖𝑒𝑒 __**")
-    await asyncio.sleep(0.6) 
+    _text = "𝐻𝑖𝑒𝑒 𝐶𝑢𝑡𝑖𝑒𝑒"
+    starting_msg = await message.reply_text(f"**__{_text[0]}__**")
+    for i in range(1, len(_text)):
+        try:
+            await asyncio.sleep(0.1)
+            await starting_msg.edit_text(f"**__{_text[:i+1]}__**")
+        except Exception:
+            pass
     await starting_msg.delete()
 
     # 5. Send Random Sticker
     umm = await message.reply_sticker(sticker=random.choice(STICKER))
-    await asyncio.sleep(0.6)
+    await asyncio.sleep(0.4)
     await umm.delete()
 
     # 6. Main Start Logic (Deep Links)
@@ -203,6 +210,3 @@ async def welcome(client, message: Message):
                 await message.stop_propagation()
         except Exception as ex:
             print(ex)
-
-
-
