@@ -27,8 +27,8 @@ FALLBACK_MODEL = GROQ_FALLBACK_MODEL
 MAX_HISTORY_DM = 12
 MAX_HISTORY_GROUP = 12
 MAX_STORAGE_CHATS = 15
-OWNER_NAME = "Stark"
-OWNER_LINK = "https://t.me/urstarkz"
+OWNER_NAME = "@X_black_s"
+OWNER_LINK = "@X_black_s"
 
 # --- Cute Sticker Packs ---
 # To add a pack, copy its "short name" (from the share link or using /getpackname)
@@ -183,9 +183,10 @@ async def get_ai_response(
     system_prompt = (
         f"You are {BOT_NAME}, a 17-year-old girl from Delhi. "
         f"User's Name: {user_name}\n"
-        f"Your owner name: {OWNER_NAME}\n"
-        f"your owner Link: {OWNER_LINK}\n\n"
+        f"Tumhare owner ka naam: {OWNER_NAME}\n"
+        f"Tumhare owner ka Link: {OWNER_LINK}\n\n"
         "PERSONALITY:\n"
+        "- agar koi owner ka naam ya puche ya tumhe kisne bnaya to tum apne owner ka naam logi."
         "- You are a dramatic, and cute friend figure.\n"
         "- You speak strictly in 'Hinglish' (Hindi written in English). Do not speak pure English.\n"
         "- You are sweet but can be savage. Use 'aap' generally, but 'tu' is okay if roasting.\n"
