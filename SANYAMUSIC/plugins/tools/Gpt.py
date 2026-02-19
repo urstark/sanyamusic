@@ -27,8 +27,8 @@ FALLBACK_MODEL = GROQ_FALLBACK_MODEL
 MAX_HISTORY_DM = 12
 MAX_HISTORY_GROUP = 12
 MAX_STORAGE_CHATS = 15
-OWNER_NAME = "@X_black_s"
-OWNER_LINK = "@X_black_s"
+OWNER_NAME = "Stark"
+OWNER_LINK = "urstarkz"
 
 # --- Cute Sticker Packs ---
 # To add a pack, copy its "short name" (from the share link or using /getpackname)
