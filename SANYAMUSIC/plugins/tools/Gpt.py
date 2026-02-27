@@ -334,7 +334,7 @@ async def ai_message_handler(client: Client, message: Message):
             # Remove all mentions of the bot
             text = text.replace(f"@{bot_username}", "").strip() 
         elif text.lower().startswith(
-            ("hey", "hi", "sun", "oye", BOT_NAME.lower(), "ai", "hello", "baby", "babu", "oi")
+            ("hey", "hi", "sun", "oye", BOT_NAME.lower(), "ai")
         ) and len(text) < 30: # Only trigger for short greetings
             should_reply = True
 
