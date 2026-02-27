@@ -14,7 +14,7 @@ async def get_truth(client, message):
                 if response.status == 200:
                     data = await response.json()
                     truth_question = data.get("question")
-                    await message.reply_text(f"Truth question:\n\n{truth_question}")
+                    await message.reply_text(f"{truth_question}")
                 else:
                     await message.reply_text("Failed to fetch a truth question. Please try again later.")
             
@@ -31,7 +31,7 @@ async def get_dare(client, message):
                 if response.status == 200:
                     data = await response.json()
                     dare_question = data.get("question")
-                    await message.reply_text(f"Dare question:\n\n{dare_question}")
+                    await message.reply_text(f"{dare_question}")
                 else:
                     await message.reply_text("Failed to fetch a dare question. Please try again later.")
             
