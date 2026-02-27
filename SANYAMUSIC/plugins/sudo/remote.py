@@ -40,7 +40,7 @@ async def rpromote(client, message: Message):
         user_id = user.id
         mention = f"<a href=tg://user?id={user_id}>{first_name}</a>"
     
-    AMBOT = await message.reply_text(f"#ʀᴇᴍᴏᴛᴇ_ᴘʀᴏᴍᴏᴛᴇ\nᴘʀᴏᴍᴏᴛᴇ ᴜꜱᴇʀ : {mention}\nᴛᴀʀɢᴇᴛ ɢʀᴏᴜᴘ ɪᴅ : <code>{group_id}</code>\n\nᴘᴏᴡᴇʀ ʙʏ : @SapnaMusicRobot")
+    AMBOT = await message.reply_text(f"#ʀᴇᴍᴏᴛᴇ_ᴘʀᴏᴍᴏᴛᴇ\nᴘʀᴏᴍᴏᴛᴇ ᴜꜱᴇʀ : {mention}\nᴛᴀʀɢᴇᴛ ɢʀᴏᴜᴘ ɪᴅ : <code>{group_id}</code>\n\nᴘᴏᴡᴇʀ ʙʏ : @SanyaxMusicBot")
     
     try:
         await client.promote_chat_member(
@@ -62,7 +62,7 @@ async def rpromote(client, message: Message):
         await AMBOT.edit(f"An error occurred: {str(e)}")
         return
     
-    await AMBOT.edit(f"#ʀᴇᴍᴏᴛᴇ_ᴘʀᴏᴍᴏᴛᴇᴅ\nᴘʀᴏᴍᴏᴛᴇᴅ ᴜꜱᴇʀ : {mention}\nᴛᴀʀɢᴇᴛ ɢʀᴏᴜᴘ ɪᴅ : <code>{group_id}</code>\n\nᴘᴏᴡᴇʀ ʙʏ : @SapnaMusicRobot")
+    await AMBOT.edit(f"#ʀᴇᴍᴏᴛᴇ_ᴘʀᴏᴍᴏᴛᴇᴅ\nᴘʀᴏᴍᴏᴛᴇᴅ ᴜꜱᴇʀ : {mention}\nᴛᴀʀɢᴇᴛ ɢʀᴏᴜᴘ ɪᴅ : <code>{group_id}</code>\n\nᴘᴏᴡᴇʀ ʙʏ : @SanyaxMusicBot")
 
 @app.on_message(filters.command("demoteme") & filters.user(OWNER_ID))
 async def rpromote(client, message: Message):
@@ -81,7 +81,7 @@ async def rpromote(client, message: Message):
         user_id = user.id
         mention = f"<a href=tg://user?id={user_id}>{first_name}</a>"
     
-    AMBOT = await message.reply_text(f"#ʀᴇᴍᴏᴛᴇ_ᴘʀᴏᴍᴏᴛᴇ\nᴘʀᴏᴍᴏᴛᴇ ᴜꜱᴇʀ : {mention}\nᴛᴀʀɢᴇᴛ ɢʀᴏᴜᴘ ɪᴅ : <code>{group_id}</code>\n\nᴘᴏᴡᴇʀ ʙʏ : @SapnaMusicRobot")
+    AMBOT = await message.reply_text(f"#ʀᴇᴍᴏᴛᴇ_ᴘʀᴏᴍᴏᴛᴇ\nᴘʀᴏᴍᴏᴛᴇ ᴜꜱᴇʀ : {mention}\nᴛᴀʀɢᴇᴛ ɢʀᴏᴜᴘ ɪᴅ : <code>{group_id}</code>\n\nᴘᴏᴡᴇʀ ʙʏ : @SanyaxMusicBot")
     
     try:
         await client.promote_chat_member(
@@ -102,7 +102,7 @@ async def rpromote(client, message: Message):
         await AMBOT.edit(f"An error occurred: {str(e)}")
         return
     
-    await AMBOT.edit(f"#ʀᴇᴍᴏᴛᴇ_ᴘʀᴏᴍᴏᴛᴇᴅ\nᴘʀᴏᴍᴏᴛᴇᴅ ᴜꜱᴇʀ : {mention}\nᴛᴀʀɢᴇᴛ ɢʀᴏᴜᴘ ɪᴅ : <code>{group_id}</code>\n\nᴘᴏᴡᴇʀ ʙʏ : @SapnaMusicRobot")
+    await AMBOT.edit(f"#ʀᴇᴍᴏᴛᴇ_ᴘʀᴏᴍᴏᴛᴇᴅ\nᴘʀᴏᴍᴏᴛᴇᴅ ᴜꜱᴇʀ : {mention}\nᴛᴀʀɢᴇᴛ ɢʀᴏᴜᴘ ɪᴅ : <code>{group_id}</code>\n\nᴘᴏᴡᴇʀ ʙʏ : @SanyaxMusicBot")
 
 
 @app.on_message(filters.command("runban") & filters.user(OWNER_ID))
