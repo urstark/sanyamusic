@@ -25,7 +25,7 @@ class SANYA(Client):
             api_hash=config.API_HASH,
             bot_token=config.BOT_TOKEN,
             in_memory=True,
-            max_concurrent_transmissions=7,
+            max_concurrent_transmissions=20,
         )
 
     async def start(self):
@@ -42,7 +42,7 @@ class SANYA(Client):
             )
         except (errors.ChannelInvalid, errors.PeerIdInvalid):
             LOGGER(__name__).error(
-                "Bot has failed to access the log group/channel. Make sure that you have added your bot to your log group/channel."
+                f"Bot has failed to access the log group/channel (ID: {config.LOGGER_ID}). Make sure that you have added your bot to your log group/channel."
             )
             exit()
         except Exception as ex:

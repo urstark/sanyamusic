@@ -43,7 +43,7 @@ def track_markup(_, videoid, user_id, channel, fplay):
 def stream_markup_timer(_, chat_id, played, dur):
     played_sec = time_to_seconds(played)
     duration_sec = time_to_seconds(dur)
-    percentage = (played_sec / duration_sec) * 100
+    percentage = (played_sec / duration_sec) * 100 if duration_sec > 0 else 0
     umm = math.floor(percentage)
     if 0 < umm <= 10:
         bar = "▰▱▱▱▱▱▱▱▱▱"

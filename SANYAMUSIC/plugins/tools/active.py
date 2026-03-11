@@ -20,13 +20,10 @@ async def activevc(_, message: Message):
     j = 0
     for x in served_chats:
         try:
-            title = (await app.get_chat(x)).title
-        except:
-            await remove_active_chat(x)
-            continue
-        try:
-            if (await app.get_chat(x)).username:
-                user = (await app.get_chat(x)).username
+            chat = await app.get_chat(x)
+            title = chat.title
+            if chat.username:
+                user = chat.username
                 text += f"<b>{j + 1}.</b> <a href=https://t.me/{user}>{unidecode(title).upper()}</a>\n"
             else:
                 text += (
@@ -34,6 +31,7 @@ async def activevc(_, message: Message):
                 )
             j += 1
         except:
+            await remove_active_chat(x)
             continue
     if not text:
         await mystic.edit_text(f"» ɴᴏ ᴀᴄᴛɪᴠᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛs ᴏɴ {app.mention}.")
@@ -52,13 +50,10 @@ async def activevi_(_, message: Message):
     j = 0
     for x in served_chats:
         try:
-            title = (await app.get_chat(x)).title
-        except:
-            await remove_active_video_chat(x)
-            continue
-        try:
-            if (await app.get_chat(x)).username:
-                user = (await app.get_chat(x)).username
+            chat = await app.get_chat(x)
+            title = chat.title
+            if chat.username:
+                user = chat.username
                 text += f"<b>{j + 1}.</b> <a href=https://t.me/{user}>{unidecode(title).upper()}</a> [<code>{x}</code>]\n"
             else:
                 text += (
@@ -66,6 +61,7 @@ async def activevi_(_, message: Message):
                 )
             j += 1
         except:
+            await remove_active_video_chat(x)
             continue
     if not text:
         await mystic.edit_text(f"» ɴᴏ ᴀᴄᴛɪᴠᴇ ᴠɪᴅᴇᴏ ᴄʜᴀᴛs ᴏɴ {app.mention}.")

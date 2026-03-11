@@ -60,7 +60,7 @@ async def sudo():
 
 def heroku():
     global HAPP
-    if is_heroku:
+    if is_heroku():
         if config.HEROKU_API_KEY and config.HEROKU_APP_NAME:
             try:
                 Heroku = heroku3.from_key(config.HEROKU_API_KEY)
@@ -70,3 +70,14 @@ def heroku():
                 LOGGER(__name__).warning(
                     f"✨𝐘𝐨𝐮 𝐇𝐚𝐯𝐞 𝐍𝐨𝐭 𝐅𝐢𝐥𝐥𝐞𝐝 𝐇𝐞𝐫𝐨𝐤𝐮 𝐀𝐩𝐢 𝐊𝐞𝐲 𝐀𝐧𝐝 𝐇𝐞𝐫𝐨𝐤𝐮 𝐀𝐩𝐩 𝐍𝐚𝐦𝐞 🕊️𝐂𝐨𝐫𝐫𝐞𝐜𝐭...."
 )
+
+
+def get_played_time(chat_id):
+    playing = db.get(chat_id)
+    if playing:
+        played = playing[0].get("played")
+        start_time = playing[0].get("start_time")
+        if start_time:
+            played += int(time.time() - start_time)
+        return played
+    return 0

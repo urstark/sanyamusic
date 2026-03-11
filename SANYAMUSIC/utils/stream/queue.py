@@ -12,6 +12,7 @@
 # ❤️ Made with dedication and love by urstark
 # -----------------------------------------------
 import asyncio
+import time
 from typing import Union
 from SANYAMUSIC.misc import db
 from SANYAMUSIC.utils.formatters import check_duration, seconds_to_min
@@ -45,6 +46,7 @@ async def put_queue(
         "vidid": vidid,
         "seconds": duration_in_seconds,
         "played": 0,
+        "start_time": time.time(),
     }
     if forceplay:
         check = db.get(chat_id)
@@ -69,17 +71,8 @@ async def put_queue_index(
     stream,
     forceplay: Union[bool, str] = None,
 ):
-    if "20.212.146.162" in vidid:
-        try:
-            dur = await asyncio.get_event_loop().run_in_executor(
-                None, check_duration, vidid
-            )
-            duration = seconds_to_min(dur)
-        except:
-            duration = "ᴜʀʟ sᴛʀᴇᴀᴍ"
-            dur = 0
-    else:
-        dur = 0
+    dur = 0
+    duration = "ᴜʀʟ sᴛʀᴇᴀᴍ"
     put = {
         "title": title,
         "dur": duration,
@@ -90,6 +83,7 @@ async def put_queue_index(
         "vidid": vidid,
         "seconds": dur,
         "played": 0,
+        "start_time": time.time(),
     }
     if forceplay:
         check = db.get(chat_id)

@@ -1,3 +1,4 @@
+import asyncio
 import os
 import re
 import aiofiles
@@ -99,7 +100,7 @@ async def get_thumb(videoid: str) -> str:
             raise ValueError("No results found.")
         data = result_items[0]
         title = re.sub(r"\W+", " ", data.get("title", "Unsupported Title")).title()
-        thumbnail = data.get("thumbnails", [{}])[0].get("url", YOUTUBE_IMG_URL)
+        thumbnail = (data.get("thumbnails") or [{}])[0].get("url", YOUTUBE_IMG_URL)
         duration = data.get("duration")
         views = data.get("viewCount", {}).get("short", "Unknown Views")
         channel = data.get("channel", {}).get("name", "Unknown Channel")
@@ -120,6 +121,10 @@ async def get_thumb(videoid: str) -> str:
     except Exception:
         return YOUTUBE_IMG_URL
 
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, sync_gen_thumb, thumb_path, cache_path, title, duration_text, channel, views, is_live)
+
+def sync_gen_thumb(thumb_path, cache_path, title, duration_text, channel, views, is_live):
     # Create base image
     base = Image.open(thumb_path)
     

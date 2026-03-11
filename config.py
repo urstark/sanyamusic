@@ -18,8 +18,8 @@ GROQ_WHISPER_MODEL = getenv("GROQ_WHISPER_MODEL", "whisper-large-v3-turbo")
 COMMAND_PREFIXES = list(getenv("COMMAND_PREFIXES", "/ ! .").split())
 
 # Bot and owner info
-OWNER_USERNAME = getenv("OWNER_USERNAME")
-BOT_USERNAME = getenv("BOT_USERNAME")
+OWNER_USERNAME = getenv("OWNER_USERNAME", "urstarkz")
+BOT_USERNAME = getenv("BOT_USERNAME", "Sanyaxmusicbot")
 BOT_NAME = getenv("BOT_NAME", "Sanya")
 ASSUSERNAME = getenv("ASSUSERNAME", "SANYAassistant")
 MUST_JOIN = getenv("MUST_JOIN", "urstarkz")
@@ -43,6 +43,9 @@ DEEP_API = getenv("DEEP_API")
 UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/urstark/sanyamusic")
 UPSTREAM_BRANCH = getenv("UPSTREAM_BRANCH", "main")
 GIT_TOKEN = getenv("GIT_TOKEN", None)
+API_URL = getenv("API_URL", "https://api.sonic.soon.it")
+API_KEY = getenv("API_KEY", "ytm_UMeootKxfWNYWzYWVDiuatOYtGZC5diW9SxZ3s9wVD8")
+
 
 # Support
 SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/LuxeKernel")

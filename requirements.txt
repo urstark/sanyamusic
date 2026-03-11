@@ -64,3 +64,4 @@ youtube-search-python
 youtube_dl==2021.12.17
 git+https://github.com/yt-dlp/yt-dlp
 git+https://github.com/AsmSafone/SafoneAPI
+edge-tts

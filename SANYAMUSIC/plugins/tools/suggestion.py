@@ -9,7 +9,6 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import config
 from SANYAMUSIC import app, YouTube, LOGGER
 from config import BANNED_USERS
-from SANYAMUSIC.utils.database import is_active_chat
 from SANYAMUSIC.utils.decorators.language import language, languageCB
 from SANYAMUSIC.utils.exceptions import AssistantErr
 from SANYAMUSIC.utils.database import get_cmode
@@ -76,136 +75,9 @@ async def get_itunes_recommendations(title):
         LOGGER(__name__).error(f"iTunes API Error: {e}")
         return [], None
 
-async def show_suggestions(chat_id: int, last_played_title: str):
-    """
-    Shows song suggestions after 10 seconds if no song is playing.
-    Call this function in your stream end handler.
-    """
-    # 1. Wait 20 seconds
-    await asyncio.sleep(10)
-    
-    if await is_active_chat(chat_id):
-        LOGGER(__name__).info(f"Chat {chat_id} is active, skipping suggestions.")
-        return
-    
-    # 2. Fetch suggestions
-    
-    suggestions = []
-    refresh_keyword = None
-    
-    # Try to get suggestions based on the last played song
-    if last_played_title:
-        clean_title = clean_text(last_played_title)
-        if not clean_title:
-            clean_title = last_played_title
 
-        refresh_keyword = clean_title
-        
-        # 1. Get Genre Recommendations from iTunes
-        itunes_recs, genre = await get_itunes_recommendations(clean_title)
-        if itunes_recs:
-            suggestions.extend(itunes_recs)
-        else:
-            # 2. Get Similar Songs from YouTube (Fallback)
-            if genre:
-                keyword = f"best {genre} songs similar to {clean_title}"
-            else:
-                keyword = f"songs similar to {clean_title}"
-            
-            youtube_recs = await YouTube.suggestions(keyword, limit=5)
-            if youtube_recs:
-                filtered_yt = [
-                    s for s in youtube_recs
-                    if clean_title.lower() not in s['title'].lower()
-                ]
-                suggestions.extend(filtered_yt)
-            
-        # Shuffle to mix Artist songs and Similar songs
-        random.shuffle(suggestions)
 
-    # If we still don't have enough, get random ones
-    if len(suggestions) < 3:
-        if last_played_title:
-            keyword = clean_title
-        else:
-            keyword = random.choice(RANDOM_HINDI_QUERIES)
-        needed = 3 - len(suggestions)
-        # This returns dicts from YouTube
-        new_suggestions = await YouTube.suggestions(keyword, limit=needed + 2)  # fetch extra for filtering
-        if new_suggestions:
-            filtered_new = [
-                s for s in new_suggestions
-                if not last_played_title or clean_text(last_played_title).lower() not in s['title'].lower()
-            ]
-            suggestions.extend(filtered_new)
-
-    # Ensure unique suggestions and limit to 3
-    final_suggestions = []
-    seen = set()
-    for s in suggestions:
-        # Handle both Spotify strings and YouTube dicts
-        val = s if isinstance(s, str) else s['id']
-        if len(final_suggestions) < 3 and val not in seen:
-            final_suggestions.append(s)
-            seen.add(val)
-    suggestions = final_suggestions
-
-    if not suggestions:
-        LOGGER(__name__).info(f"No suggestions found for chat {chat_id}.")
-        return
-
-    # 3. Build Buttons
-    buttons = []
-    for item in suggestions:
-        if isinstance(item, str):
-            # Spotify Suggestion (String)
-            title_text = item[:30]
-            # Truncate query for callback data to avoid limit (64 bytes)
-            # "suggestion_query:" is 17 chars, leaving 47 chars.
-            cb_data = f"suggestion_query:{item[:40]}"
-            buttons.append([
-                InlineKeyboardButton(
-                    text=f"{title_text}...",
-                    callback_data=cb_data
-                )
-            ])
-        else:
-            # YouTube Suggestion (Dict)
-            title_text = clean_text(item['title'])[:30]
-            buttons.append([
-                InlineKeyboardButton(
-                    text=f"{title_text}... - {item['duration']}",
-                    callback_data=f"suggestion_play:{item['id']}"
-                )
-            ])
-    
-    refresh_data = f"refresh_suggestions:{refresh_keyword}" if refresh_keyword else "refresh_suggestions"
-    if len(refresh_data) > 64:
-        refresh_data = f"refresh_suggestions:{refresh_keyword[:40]}"
-
-    buttons.append([
-        InlineKeyboardButton(text="Refresh", callback_data=refresh_data),
-        InlineKeyboardButton(text="Close", callback_data="close")
-    ])
-
-    # 4. Send Message
-    try:
-        msg = await app.send_message(
-            chat_id,
-            text=f"<b>💿 No music is playing!</b>\n\n💡 <i>Use /suggest <code>sahiba</code> or /suggest for suggestions.</i>\n\nHere are some suggestions:",
-            reply_markup=InlineKeyboardMarkup(buttons)
-        )
-
-        # 5. Delete after 1 minute
-        await asyncio.sleep(60)
-        try:
-            await msg.delete()
-        except Exception:
-            pass
-    except Exception as e:
-        LOGGER(__name__).error(f"Error sending suggestion message: {e}")
-
-@app.on_message(filters.command("suggest") & ~BANNED_USERS)
+@app.on_message(filters.command(["suggest", "suggestions", "suggests"]) & ~BANNED_USERS)
 @language
 async def suggest_command(client, message, _):
     msg = await message.reply_text("🔎 Finding suggestions...")

@@ -28,7 +28,10 @@ async def seek_comm(cli, message: Message, _, chat_id):
     if duration_seconds == 0:
         return await message.reply_text(_["admin_22"])
     file_path = playing[0]["file"]
-    duration_played = int(playing[0]["played"])
+    from SANYAMUSIC.misc import get_played_time
+    import time
+
+    duration_played = get_played_time(chat_id)
     duration_to_skip = int(query)
     duration = playing[0]["dur"]
     if message.command[0][-2] == "c":
@@ -65,10 +68,10 @@ async def seek_comm(cli, message: Message, _, chat_id):
         )
     except:
         return await mystic.edit_text(_["admin_26"], reply_markup=close_markup(_))
-    if message.command[0][-2] == "c":
-        db[chat_id][0]["played"] -= duration_to_skip
-    else:
-        db[chat_id][0]["played"] += duration_to_skip
+    
+    db[chat_id][0]["played"] = to_seek
+    db[chat_id][0]["start_time"] = time.time()
+
     await mystic.edit_text(
         text=_["admin_25"].format(seconds_to_min(to_seek), message.from_user.mention),
         reply_markup=close_markup(_),

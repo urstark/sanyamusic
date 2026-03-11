@@ -18,29 +18,37 @@ PROCESS = [
           ]
 afkdb = db.afk
 
+# In-memory cache for AFK status to reduce DB load
+AFK_CACHE = {}
 
-async def is_afk(user_id: int) -> bool:
+async def is_afk(user_id: int) -> tuple:
+    if user_id in AFK_CACHE:
+        return True, AFK_CACHE[user_id]
+    
+    # Lazy loading from DB if not in cache
     user = await afkdb.find_one({"user_id": user_id})
-    if not user:
-        return False, {}
-    return True, user["reason"]
+    if user:
+        # Limit cache size to 2000 users to stay "minimal" as requested
+        if len(AFK_CACHE) > 2000:
+            AFK_CACHE.clear()
+        AFK_CACHE[user_id] = user["reason"]
+        return True, user["reason"]
+    return False, {}
 
 
 async def add_afk(user_id: int, mode):
+    AFK_CACHE[user_id] = mode
     await afkdb.update_one(
         {"user_id": user_id}, {"$set": {"reason": mode}}, upsert=True
     )
 
 async def remove_afk(user_id: int):
-    user = await afkdb.find_one({"user_id": user_id})
-    if user:
-        return await afkdb.delete_one({"user_id": user_id})
+    if user_id in AFK_CACHE:
+        del AFK_CACHE[user_id]
+    await afkdb.delete_one({"user_id": user_id})
 
 async def get_afk_users() -> list:
-    users = afkdb.find({"user_id": {"$gt": 0}})
-    if not users:
-        return []
     users_list = []
-    for user in await users.to_list(length=1000000000):
+    async for user in afkdb.find({"user_id": {"$gt": 0}}):
         users_list.append(user)
     return users_list

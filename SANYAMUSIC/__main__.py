@@ -3,6 +3,7 @@ import importlib
 from pyrogram import idle
 from pytgcalls.exceptions import NoActiveGroupCall
 import config
+from config import BANNED_USERS
 from SANYAMUSIC import LOGGER, app, userbot
 from SANYAMUSIC.core.call import SANYA
 from SANYAMUSIC.misc import sudo
@@ -31,20 +32,11 @@ async def init():
         pass
     await app.start()
     for all_module in ALL_MODULES:
-        importlib.import_module("SANYAMUSIC.plugins" + all_module)
+        importlib.import_module("SANYAMUSIC.plugins." + all_module)
     LOGGER("SANYAMUSIC.plugins").info("𝐀𝐥𝐥 𝐅𝐞𝐚𝐭𝐮𝐫𝐞𝐬 𝐋𝐨𝐚𝐝𝐞𝐝 𝐁𝐚𝐛𝐲🥳...")
+    await SANYA.decorators()
     await userbot.start()
     await SANYA.start()
-    try:
-        await SANYA.stream_call("https://te.legra.ph/file/29f784eb49d230ab62e9e.mp4")
-    except NoActiveGroupCall:
-        LOGGER("SANYAMUSIC").error(
-            "𝗣𝗹𝗭 𝗦𝗧𝗔𝗥𝗧 𝗬𝗢𝗨𝗥 𝗟𝗢𝗚 𝗚𝗥𝗢𝗨𝗣 𝗩𝗢𝗜𝗖𝗘𝗖𝗛𝗔𝗧\𝗖𝗛𝗔𝗡𝗡𝗘𝗟\n\𝗦𝗔𝗡𝗬𝗔 𝗕𝗢𝗧 𝗦𝗧𝗢𝗣........"
-        )
-        exit()
-    except:
-        pass
-    await SANYA.decorators()
     LOGGER("SANYAMUSIC").info(
         "╔═════ஜ۩۞۩ஜ════╗\n  ☠︎︎𝗠𝗔𝗗𝗘 𝗕𝗬 𝗠𝗥 𝗦𝗧𝗔𝗥𝗞\n╚═════ஜ۩۞۩ஜ════╝"
     )
@@ -55,4 +47,9 @@ async def init():
 
 
 if __name__ == "__main__":
+    try:
+        import uvloop
+        uvloop.install()
+    except:
+        pass
     asyncio.get_event_loop().run_until_complete(init())

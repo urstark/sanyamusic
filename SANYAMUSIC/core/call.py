@@ -12,6 +12,7 @@
 # ❤️ Made with dedication and love by urstark
 # -----------------------------------------------
 import asyncio
+import time
 import os
 from datetime import datetime, timedelta
 from typing import Union
@@ -25,7 +26,7 @@ from pytgcalls.exceptions import (
 )
 from pytgcalls.types import Update
 from pytgcalls.types.input_stream import AudioPiped, AudioVideoPiped
-from pytgcalls.types.input_stream.quality import HighQualityAudio, MediumQualityVideo
+from pytgcalls.types.input_stream.quality import LowQualityAudio, MediumQualityVideo
 from pytgcalls.types.stream import StreamAudioEnded
 import config
 from SANYAMUSIC import LOGGER, YouTube, app
@@ -67,7 +68,7 @@ class Call(PyTgCalls):
         )
         self.one = PyTgCalls(
             self.userbot1,
-            cache_duration=100,
+            cache_duration=400,
         )
         self.userbot2 = Client(
             name="SANYAAss2",
@@ -77,7 +78,7 @@ class Call(PyTgCalls):
         )
         self.two = PyTgCalls(
             self.userbot2,
-            cache_duration=100,
+            cache_duration=400,
         )
         self.userbot3 = Client(
             name="SANYAAss3",
@@ -87,7 +88,7 @@ class Call(PyTgCalls):
         )
         self.three = PyTgCalls(
             self.userbot3,
-            cache_duration=100,
+            cache_duration=400,
         )
         self.userbot4 = Client(
             name="SANYAAss4",
@@ -97,7 +98,7 @@ class Call(PyTgCalls):
         )
         self.four = PyTgCalls(
             self.userbot4,
-            cache_duration=100,
+            cache_duration=400,
         )
         self.userbot5 = Client(
             name="SANYAAss5",
@@ -107,16 +108,26 @@ class Call(PyTgCalls):
         )
         self.five = PyTgCalls(
             self.userbot5,
-            cache_duration=100,
+            cache_duration=400,
         )
 
     async def pause_stream(self, chat_id: int):
         assistant = await group_assistant(self, chat_id)
         await assistant.pause_stream(chat_id)
+        playing = db.get(chat_id)
+        if playing:
+            start_time = playing[0].get("start_time")
+            if start_time:
+                played = time.time() - start_time
+                db[chat_id][0]["played"] += int(played)
+                db[chat_id][0]["start_time"] = None
 
     async def resume_stream(self, chat_id: int):
         assistant = await group_assistant(self, chat_id)
         await assistant.resume_stream(chat_id)
+        playing = db.get(chat_id)
+        if playing:
+            db[chat_id][0]["start_time"] = time.time()
 
     async def stop_stream(self, chat_id: int):
         assistant = await group_assistant(self, chat_id)
@@ -200,15 +211,15 @@ class Call(PyTgCalls):
         stream = (
             AudioVideoPiped(
                 out,
-                audio_parameters=HighQualityAudio(),
+                audio_parameters=LowQualityAudio(),
                 video_parameters=MediumQualityVideo(),
                 additional_ffmpeg_parameters=f"-ss {played} -to {duration}",
             )
             if playing[0]["streamtype"] == "video"
             else AudioPiped(
                 out,
-                audio_parameters=HighQualityAudio(),
-                additional_ffmpeg_parameters=f"-ss {played} -to {duration}",
+                audio_parameters=LowQualityAudio(),
+                additional_ffmpeg_parameters=f"-ss {played} -to {duration} -threads 1",
             )
         )
         if str(db[chat_id][0]["file"]) == str(file_path):
@@ -221,6 +232,7 @@ class Call(PyTgCalls):
                 db[chat_id][0]["old_dur"] = db[chat_id][0]["dur"]
                 db[chat_id][0]["old_second"] = db[chat_id][0]["seconds"]
             db[chat_id][0]["played"] = con_seconds
+            db[chat_id][0]["start_time"] = time.time()
             db[chat_id][0]["dur"] = duration
             db[chat_id][0]["seconds"] = dur
             db[chat_id][0]["speed_path"] = out
@@ -251,11 +263,11 @@ class Call(PyTgCalls):
         if video:
             stream = AudioVideoPiped(
                 link,
-                audio_parameters=HighQualityAudio(),
+                audio_parameters=LowQualityAudio(),
                 video_parameters=MediumQualityVideo(),
             )
         else:
-            stream = AudioPiped(link, audio_parameters=HighQualityAudio())
+            stream = AudioPiped(link, audio_parameters=LowQualityAudio())
         await assistant.change_stream(
             chat_id,
             stream,
@@ -266,15 +278,15 @@ class Call(PyTgCalls):
         stream = (
             AudioVideoPiped(
                 file_path,
-                audio_parameters=HighQualityAudio(),
+                audio_parameters=LowQualityAudio(),
                 video_parameters=MediumQualityVideo(),
                 additional_ffmpeg_parameters=f"-ss {to_seek} -to {duration}",
             )
             if mode == "video"
             else AudioPiped(
                 file_path,
-                audio_parameters=HighQualityAudio(),
-                additional_ffmpeg_parameters=f"-ss {to_seek} -to {duration}",
+                audio_parameters=LowQualityAudio(),
+                additional_ffmpeg_parameters=f"-ss {to_seek} -to {duration} -threads 1",
             )
         )
         await assistant.change_stream(chat_id, stream)
@@ -303,18 +315,18 @@ class Call(PyTgCalls):
         if video:
             stream = AudioVideoPiped(
                 link,
-                audio_parameters=HighQualityAudio(),
+                audio_parameters=LowQualityAudio(),
                 video_parameters=MediumQualityVideo(),
             )
         else:
             stream = (
                 AudioVideoPiped(
                     link,
-                    audio_parameters=HighQualityAudio(),
+                    audio_parameters=LowQualityAudio(),
                     video_parameters=MediumQualityVideo(),
                 )
                 if video
-                else AudioPiped(link, audio_parameters=HighQualityAudio())
+                else AudioPiped(link, audio_parameters=LowQualityAudio(), additional_ffmpeg_parameters="-threads 1")
             )
         try:
             await assistant.join_group_call(
@@ -332,6 +344,8 @@ class Call(PyTgCalls):
         await music_on(chat_id)
         if video:
             await add_active_video_chat(chat_id)
+        if db.get(chat_id):
+            db[chat_id][0]["start_time"] = time.time()
         if await is_autoend():
             counter[chat_id] = {}
             users = len(await assistant.get_participants(chat_id))
@@ -350,11 +364,6 @@ class Call(PyTgCalls):
                 await set_loop(chat_id, loop)
             await auto_clean(popped)
             if not check:
-                try:
-                    from SANYAMUSIC.plugins.tools.suggestion import show_suggestions
-                    asyncio.create_task(show_suggestions(chat_id, popped.get("title", "") if popped else ""))
-                except Exception as e:
-                    LOGGER(__name__).error(f"Suggestion Error: {e}")
                 await _clear_(chat_id)
                 return await client.leave_group_call(chat_id)
         except:
@@ -373,6 +382,7 @@ class Call(PyTgCalls):
             streamtype = check[0]["streamtype"]
             videoid = check[0]["vidid"]
             db[chat_id][0]["played"] = 0
+            db[chat_id][0]["start_time"] = time.time()
             exis = (check[0]).get("old_dur")
             if exis:
                 db[chat_id][0]["dur"] = exis
@@ -390,13 +400,14 @@ class Call(PyTgCalls):
                 if video:
                     stream = AudioVideoPiped(
                         link,
-                        audio_parameters=HighQualityAudio(),
+                        audio_parameters=LowQualityAudio(),
                         video_parameters=MediumQualityVideo(),
                     )
                 else:
                     stream = AudioPiped(
                         link,
-                        audio_parameters=HighQualityAudio(),
+                        audio_parameters=LowQualityAudio(),
+                        additional_ffmpeg_parameters="-threads 1",
                     )
                 try:
                     await client.change_stream(chat_id, stream)
@@ -437,13 +448,14 @@ class Call(PyTgCalls):
                 if video:
                     stream = AudioVideoPiped(
                         file_path,
-                        audio_parameters=HighQualityAudio(),
+                        audio_parameters=LowQualityAudio(),
                         video_parameters=MediumQualityVideo(),
                     )
                 else:
                     stream = AudioPiped(
                         file_path,
-                        audio_parameters=HighQualityAudio(),
+                        audio_parameters=LowQualityAudio(),
+                        additional_ffmpeg_parameters="-threads 1",
                     )
                 try:
                     await client.change_stream(chat_id, stream)
@@ -473,11 +485,11 @@ class Call(PyTgCalls):
                 stream = (
                     AudioVideoPiped(
                         videoid,
-                        audio_parameters=HighQualityAudio(),
+                        audio_parameters=LowQualityAudio(),
                         video_parameters=MediumQualityVideo(),
                     )
                     if str(streamtype) == "video"
-                    else AudioPiped(videoid, audio_parameters=HighQualityAudio())
+                    else AudioPiped(videoid, audio_parameters=LowQualityAudio(), additional_ffmpeg_parameters="-threads 1")
                 )
                 try:
                     await client.change_stream(chat_id, stream)
@@ -499,13 +511,14 @@ class Call(PyTgCalls):
                 if video:
                     stream = AudioVideoPiped(
                         queued,
-                        audio_parameters=HighQualityAudio(),
+                        audio_parameters=LowQualityAudio(),
                         video_parameters=MediumQualityVideo(),
                     )
                 else:
                     stream = AudioPiped(
                         queued,
-                        audio_parameters=HighQualityAudio(),
+                        audio_parameters=LowQualityAudio(),
+                        additional_ffmpeg_parameters="-threads 1",
                     )
                 try:
                     await client.change_stream(chat_id, stream)
